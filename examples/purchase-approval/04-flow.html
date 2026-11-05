@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Purchase approval with rework loop - BPMN</title>
+<link rel="stylesheet" href="https://unpkg.com/bpmn-js@18.30.1/dist/assets/bpmn-js.css">
+<style>
+  :root { --bg:#fafafa; --fg:#1d1d1f; --muted:#6b6b70; --line:#e2e2e6; --card:#fff; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:14px/1.45 system-ui,-apple-system,Segoe UI,sans-serif; background:var(--bg); color:var(--fg); }
+  header { display:flex; gap:12px; align-items:center; flex-wrap:wrap; padding:12px 16px; border-bottom:1px solid var(--line); background:var(--card); }
+  h1 { font-size:16px; margin:0; flex:1; min-width:200px; }
+  .meta { color:var(--muted); font-size:12px; }
+  button, a.btn { font:inherit; font-size:13px; padding:6px 12px; border:1px solid var(--line); border-radius:6px; background:var(--card); color:var(--fg); cursor:pointer; text-decoration:none; }
+  button:hover, a.btn:hover { border-color:#999; }
+  #canvas { height:calc(100vh - 58px); background:#fff; }
+  #err { display:none; padding:16px; color:#b00020; white-space:pre-wrap; }
+  .bjs-powered-by { opacity:.5; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Purchase approval with rework loop <span class="meta">BPMN 2.0 · 2 lanes · 6 nodes · 6 flows</span></h1>
+  <button id="fit">Fit</button>
+  <button id="zin">+</button>
+  <button id="zout">−</button>
+  <a class="btn" id="dl" download="04-flow.bpmn">Download .bpmn</a>
+  <button id="svg">Export SVG</button>
+</header>
+<div id="err"></div>
+<div id="canvas"></div>
+<script type="text/xml" id="bpmn-xml"><?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Defs_approval" targetNamespace="http://bpmn.io/schema/bpmn" exporter="product-trio bpmn_build" exporterVersion="0.1.0">
+  <bpmn:collaboration id="Collab_approval">
+    <bpmn:participant id="Pool_main" name="Company" processRef="approval" />
+  </bpmn:collaboration>
+  <bpmn:process id="approval" name="Purchase approval with rework loop" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_approval">
+      <bpmn:lane id="L-Req" name="Requester">
+        <bpmn:flowNodeRef>E-01</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T-01</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T-03</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="L-Mgr" name="Manager">
+        <bpmn:flowNodeRef>T-02</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>G-01</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>E-02</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="E-01" name="Need item">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="T-01" name="Fill request">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="T-02" name="Review request">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:incoming>Flow_6</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="G-01" name="Approved?">
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+      <bpmn:outgoing>Flow_4</bpmn:outgoing>
+      <bpmn:outgoing>Flow_5</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="T-03" name="Revise request">
+      <bpmn:incoming>Flow_5</bpmn:incoming>
+      <bpmn:outgoing>Flow_6</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="E-02" name="Request approved">
+      <bpmn:incoming>Flow_4</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1" name="" sourceRef="E-01" targetRef="T-01" />
+    <bpmn:sequenceFlow id="Flow_2" name="" sourceRef="T-01" targetRef="T-02" />
+    <bpmn:sequenceFlow id="Flow_3" name="" sourceRef="T-02" targetRef="G-01" />
+    <bpmn:sequenceFlow id="Flow_4" name="Yes" sourceRef="G-01" targetRef="E-02" />
+    <bpmn:sequenceFlow id="Flow_5" name="Needs changes" sourceRef="G-01" targetRef="T-03" />
+    <bpmn:sequenceFlow id="Flow_6" name="" sourceRef="T-03" targetRef="T-02" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="Diagram_approval">
+    <bpmndi:BPMNPlane id="Plane_approval" bpmnElement="Collab_approval">
+      <bpmndi:BPMNShape id="Pool_main_di" bpmnElement="Pool_main" isHorizontal="true"><dc:Bounds x="0" y="40" width="920" height="260" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="L-Req_di" bpmnElement="L-Req" isHorizontal="true"><dc:Bounds x="30" y="40" width="890" height="130" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="L-Mgr_di" bpmnElement="L-Mgr" isHorizontal="true"><dc:Bounds x="30" y="170" width="890" height="130" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="E-01_di" bpmnElement="E-01"><dc:Bounds x="152" y="87" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="120" y="127" width="100" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T-01_di" bpmnElement="T-01"><dc:Bounds x="280" y="65" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T-02_di" bpmnElement="T-02"><dc:Bounds x="440" y="195" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="G-01_di" bpmnElement="G-01" isMarkerVisible="true"><dc:Bounds x="625" y="210" width="50" height="50" /><bpmndi:BPMNLabel><dc:Bounds x="600" y="264" width="100" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T-03_di" bpmnElement="T-03"><dc:Bounds x="760" y="65" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="E-02_di" bpmnElement="E-02"><dc:Bounds x="792" y="217" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="760" y="257" width="100" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1_di" bpmnElement="Flow_1"><di:waypoint x="188" y="105" /><di:waypoint x="280" y="105" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_2_di" bpmnElement="Flow_2"><di:waypoint x="380" y="105" /><di:waypoint x="410" y="105" /><di:waypoint x="410" y="235" /><di:waypoint x="440" y="235" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_3_di" bpmnElement="Flow_3"><di:waypoint x="540" y="235" /><di:waypoint x="625" y="235" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_4_di" bpmnElement="Flow_4"><di:waypoint x="675" y="235" /><di:waypoint x="792" y="235" /><bpmndi:BPMNLabel><dc:Bounds x="737.5" y="217" width="70" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_5_di" bpmnElement="Flow_5"><di:waypoint x="650" y="210" /><di:waypoint x="650" y="105" /><di:waypoint x="760" y="105" /><bpmndi:BPMNLabel><dc:Bounds x="656" y="150.5" width="70" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_6_di" bpmnElement="Flow_6"><di:waypoint x="860" y="105" /><di:waypoint x="880" y="105" /><di:waypoint x="880" y="293" /><di:waypoint x="490" y="293" /><di:waypoint x="490" y="275" /></bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
+</script>
+<script src="https://unpkg.com/bpmn-js@18.30.1/dist/bpmn-navigated-viewer.production.min.js"></script>
+<script>
+(async function () {
+  const xml = document.getElementById('bpmn-xml').textContent.trim();
+  document.getElementById('dl').href = URL.createObjectURL(new Blob([xml], {type: 'application/xml'}));
+  const err = document.getElementById('err');
+  if (!window.BpmnJS) { err.style.display = 'block'; err.textContent = 'Could not load bpmn-js from unpkg (offline?). Open the .bpmn file in https://demo.bpmn.io or Camunda Modeler.'; return; }
+  const viewer = new BpmnJS({ container: '#canvas' });
+  try {
+    const res = await viewer.importXML(xml);
+    if (res.warnings && res.warnings.length) console.warn(res.warnings);
+  } catch (e) { err.style.display = 'block'; err.textContent = 'Import error: ' + e.message; return; }
+  const canvas = viewer.get('canvas');
+  const fit = () => { try { canvas.resized(); canvas.zoom('fit-viewport', 'auto'); } catch (e) { /* container not sized yet */ } };
+  requestAnimationFrame(fit);
+  window.addEventListener('resize', fit);
+  document.getElementById('fit').onclick = fit;
+  document.getElementById('zin').onclick = () => canvas.zoom(canvas.zoom() * 1.2);
+  document.getElementById('zout').onclick = () => canvas.zoom(canvas.zoom() / 1.2);
+  document.getElementById('svg').onclick = async () => {
+    const { svg } = await viewer.saveSVG();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([svg], {type: 'image/svg+xml'}));
+    a.download = '04-flow.bpmn'.replace(/\.bpmn$/, '.svg'); a.click();
+  };
+})();
+</script>
+</body>
+</html>

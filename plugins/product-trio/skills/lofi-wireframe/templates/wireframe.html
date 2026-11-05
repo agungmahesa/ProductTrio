@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>__FEATURE__ - Lo-fi Wireframe</title>
+<!--
+  product-trio lo-fi wireframe template
+  ------------------------------------------------------------------
+  HOW TO FILL (for the lofi-wireframe skill):
+  1. Replace __FEATURE__ (title + header).
+  2. Fill the FLOWS array in the <script> (named journeys = ordered screen ids).
+  3. Add one <section class="screen"> per screen inside #screens:
+       data-id       S-01, S-02 ...            (required, unique)
+       data-title    short screen name         (required)
+       data-stories  "US-01,US-02"             (story ids shown on this screen)
+       data-bpmn     "T-01"                    (BPMN node ids this screen serves)
+       data-state    default | empty | loading | error | success  (optional, default "default")
+  4. Make it clickable: any element with data-go="S-0x" navigates to that screen.
+     data-go="back" goes to the previous screen.
+  5. Annotations: put <span class="note" data-n="1">...</span> markers in the UI and the
+     matching text in <ol class="notes"> at the end of the section (rendered in the side panel).
+  6. Use only the wf-* building blocks below. Grayscale only. No brand colours, no images,
+     no real copywriting polish - real labels, but lo-fi visuals.
+  Do not edit the CSS/JS engine unless a building block is genuinely missing.
+-->
+<style>
+  :root {
+    --bg: #f4f4f2; --paper: #ffffff; --ink: #2b2b2b; --ink-2: #6e6e6e; --ink-3: #a9a9a9;
+    --line: #2b2b2b; --fill: #e6e6e3; --fill-2: #d2d2ce; --hot: rgba(255, 196, 0, .35);
+    --radius: 6px; --font: "Comic Neue", "Segoe Print", "Chalkboard SE", ui-rounded, system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body { background: var(--bg); color: var(--ink); font: 14px/1.4 system-ui, -apple-system, Segoe UI, sans-serif; }
+
+  /* ---------- app chrome ---------- */
+  .app { display: grid; grid-template-columns: 240px 1fr 300px; height: 100vh; }
+  .side, .panel { background: var(--paper); border-right: 1px solid #ddd; overflow: auto; padding: 14px; }
+  .panel { border-right: 0; border-left: 1px solid #ddd; }
+  .side h1 { font-size: 15px; margin: 0 0 2px; }
+  .side .sub { color: var(--ink-2); font-size: 12px; margin-bottom: 12px; }
+  .side h2, .panel h2 { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-2); margin: 16px 0 6px; }
+  .side select { width: 100%; padding: 6px; font: inherit; border: 1px solid #ccc; border-radius: 6px; background: #fff; }
+  .scr-list { list-style: none; margin: 0; padding: 0; }
+  .scr-list button { all: unset; display: flex; gap: 6px; width: 100%; padding: 6px 8px; border-radius: 6px; cursor: pointer; font-size: 13px; box-sizing: border-box; }
+  .scr-list button:hover { background: #f0f0ee; }
+  .scr-list button[aria-current="true"] { background: var(--ink); color: #fff; }
+  .scr-list .sid { font-family: ui-monospace, monospace; font-size: 11px; opacity: .7; min-width: 36px; }
+  .scr-list .st { margin-left: auto; font-size: 10px; opacity: .7; }
+  .toolbar { display: flex; gap: 6px; flex-wrap: wrap; }
+  .toolbar button { font: inherit; font-size: 12px; padding: 5px 9px; border: 1px solid #ccc; border-radius: 6px; background: #fff; cursor: pointer; }
+  .toolbar button[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+  .stage { overflow: auto; display: flex; flex-direction: column; align-items: center; padding: 24px 16px 48px; gap: 12px; }
+  .crumbs { font-size: 12px; color: var(--ink-2); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: center; }
+  .crumbs .tag { font-family: ui-monospace, monospace; background: #fff; border: 1px solid #ccc; border-radius: 4px; padding: 1px 6px; }
+  .device { background: var(--paper); border: 2px solid var(--line); border-radius: 28px; width: 390px; min-height: 780px; position: relative; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,.08); }
+  .device.desktop { width: min(1100px, 100%); min-height: 680px; border-radius: 10px; }
+  .device.desktop::before { content: "● ● ●"; display: block; padding: 6px 12px; font-size: 10px; letter-spacing: 2px; color: var(--ink-3); border-bottom: 2px solid var(--line); }
+  .flow-nav { display: flex; gap: 8px; }
+  .flow-nav button { font: inherit; font-size: 12px; padding: 5px 10px; border: 1px solid #ccc; border-radius: 6px; background: #fff; cursor: pointer; }
+  .flow-nav button:disabled { opacity: .4; cursor: default; }
+
+  .panel .meta-row { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
+  .panel .chip { font-family: ui-monospace, monospace; font-size: 11px; border: 1px solid #ccc; border-radius: 4px; padding: 1px 6px; }
+  .panel ol { padding-left: 20px; margin: 6px 0; }
+  .panel li { margin-bottom: 8px; }
+  .panel .empty { color: var(--ink-3); font-style: italic; }
+
+  /* ---------- screens ---------- */
+  #screens > .screen { display: none; }
+  .device > .screen { display: flex; flex-direction: column; flex: 1; font-family: var(--font); }
+  .screen > .notes { display: none; }
+  .body { flex: 1; padding: 14px; display: flex; flex-direction: column; gap: 12px; overflow: auto; }
+  .device.desktop .body { padding: 20px 28px; }
+
+  /* ---------- lo-fi building blocks (wf-*) ---------- */
+  .wf-status { height: 22px; font-size: 10px; display: flex; justify-content: space-between; padding: 4px 18px; color: var(--ink-2); }
+  .device.desktop .wf-status { display: none; }
+  .wf-appbar { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 2px solid var(--line); font-weight: 700; }
+  .wf-appbar .grow { flex: 1; }
+  .wf-tabbar { display: flex; border-top: 2px solid var(--line); }
+  .wf-tabbar > * { flex: 1; text-align: center; padding: 10px 4px; font-size: 11px; border-right: 1px dashed var(--ink-3); }
+  .wf-tabbar > *:last-child { border-right: 0; }
+  .wf-tabbar .on { font-weight: 700; text-decoration: underline; }
+  .wf-sidebar { border-right: 2px solid var(--line); padding: 12px; display: flex; flex-direction: column; gap: 8px; min-width: 180px; }
+  .wf-row { display: flex; gap: 10px; align-items: center; }
+  .wf-row.between { justify-content: space-between; }
+  .wf-col { display: flex; flex-direction: column; gap: 8px; }
+  .wf-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+  .wf-split { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .device:not(.desktop) .wf-split { grid-template-columns: 1fr; }
+  .wf-h1 { font-size: 22px; font-weight: 700; margin: 0; }
+  .wf-h2 { font-size: 17px; font-weight: 700; margin: 0; }
+  .wf-text { margin: 0; color: var(--ink); }
+  .wf-muted { color: var(--ink-2); font-size: 12px; }
+  .wf-lines { display: flex; flex-direction: column; gap: 6px; }
+  .wf-lines::before, .wf-lines::after, .wf-lines > i { content: ""; display: block; height: 8px; background: var(--fill); border-radius: 4px; }
+  .wf-lines::after { width: 60%; }
+  .wf-img { background: var(--fill); border: 2px solid var(--line); border-radius: var(--radius); min-height: 110px; position: relative; overflow: hidden; }
+  .wf-img::before, .wf-img::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top right, transparent calc(50% - 1px), var(--ink-3) 50%, transparent calc(50% + 1px)); }
+  .wf-img::after { background: linear-gradient(to top left, transparent calc(50% - 1px), var(--ink-3) 50%, transparent calc(50% + 1px)); }
+  .wf-avatar { width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--line); background: var(--fill); flex: none; }
+  .wf-icon { width: 22px; height: 22px; border: 2px solid var(--line); border-radius: 5px; flex: none; display: inline-grid; place-items: center; font-size: 12px; line-height: 1; }
+  .wf-card { border: 2px solid var(--line); border-radius: var(--radius); padding: 12px; display: flex; flex-direction: column; gap: 8px; background: var(--paper); }
+  .wf-list { border: 2px solid var(--line); border-radius: var(--radius); }
+  .wf-list > * { display: flex; gap: 10px; align-items: center; padding: 10px 12px; border-bottom: 1px dashed var(--ink-3); }
+  .wf-list > *:last-child { border-bottom: 0; }
+  .wf-btn { font: inherit; font-weight: 700; border: 2px solid var(--line); border-radius: var(--radius); background: var(--ink); color: #fff; padding: 11px 14px; text-align: center; cursor: pointer; }
+  .wf-btn.secondary { background: var(--paper); color: var(--ink); }
+  .wf-btn.ghost { background: transparent; color: var(--ink); border-style: dashed; }
+  .wf-btn.block { width: 100%; }
+  .wf-btn[disabled] { opacity: .35; cursor: not-allowed; }
+  .wf-link { text-decoration: underline; cursor: pointer; }
+  .wf-field { display: flex; flex-direction: column; gap: 4px; }
+  .wf-field label { font-size: 12px; font-weight: 700; }
+  .wf-input { border: 2px solid var(--line); border-radius: var(--radius); padding: 10px; color: var(--ink-3); min-height: 40px; background: var(--paper); }
+  .wf-input.filled { color: var(--ink); }
+  .wf-input.error { border-style: dashed; }
+  .wf-hint { font-size: 11px; color: var(--ink-2); }
+  .wf-hint.error::before { content: "⚠ "; }
+  .wf-select::after { content: " ▾"; float: right; color: var(--ink); }
+  .wf-check, .wf-radio { display: flex; align-items: center; gap: 8px; }
+  .wf-check::before, .wf-radio::before { content: ""; width: 16px; height: 16px; border: 2px solid var(--line); border-radius: 3px; flex: none; }
+  .wf-radio::before { border-radius: 50%; }
+  .wf-check.on::before { background: var(--ink); box-shadow: inset 0 0 0 3px #fff; }
+  .wf-radio.on::before { background: var(--ink); box-shadow: inset 0 0 0 3px #fff; }
+  .wf-toggle { width: 38px; height: 22px; border: 2px solid var(--line); border-radius: 11px; position: relative; flex: none; }
+  .wf-toggle::after { content: ""; position: absolute; width: 14px; height: 14px; border-radius: 50%; background: var(--ink); top: 2px; left: 2px; }
+  .wf-toggle.on::after { left: 18px; }
+  .wf-stepper { display: inline-flex; border: 2px solid var(--line); border-radius: var(--radius); }
+  .wf-stepper > * { padding: 4px 10px; border-right: 2px solid var(--line); }
+  .wf-stepper > *:last-child { border-right: 0; }
+  .wf-tabs { display: flex; border-bottom: 2px solid var(--line); }
+  .wf-tabs > * { padding: 8px 12px; color: var(--ink-2); }
+  .wf-tabs .on { color: var(--ink); font-weight: 700; border-bottom: 3px solid var(--ink); margin-bottom: -2px; }
+  .wf-badge { display: inline-block; font-size: 11px; border: 1.5px solid var(--line); border-radius: 999px; padding: 1px 8px; }
+  .wf-divider { border: 0; border-top: 1px dashed var(--ink-3); margin: 4px 0; width: 100%; }
+  .wf-progress { height: 8px; border: 2px solid var(--line); border-radius: 6px; overflow: hidden; }
+  .wf-progress > i { display: block; height: 100%; background: var(--ink); }
+  .wf-steps { display: flex; gap: 6px; font-size: 11px; }
+  .wf-steps > * { flex: 1; border-top: 4px solid var(--fill-2); padding-top: 4px; color: var(--ink-2); }
+  .wf-steps .done, .wf-steps .on { border-color: var(--ink); color: var(--ink); }
+  .wf-steps .on { font-weight: 700; }
+  .wf-table { width: 100%; border-collapse: collapse; border: 2px solid var(--line); }
+  .wf-table th, .wf-table td { border-bottom: 1px dashed var(--ink-3); padding: 8px; text-align: left; font-size: 13px; }
+  .wf-table th { border-bottom: 2px solid var(--line); }
+  .wf-banner { border: 2px dashed var(--line); border-radius: var(--radius); padding: 10px 12px; display: flex; gap: 8px; align-items: flex-start; }
+  .wf-banner::before { content: "ⓘ"; }
+  .wf-banner.error::before { content: "⚠"; }
+  .wf-banner.success::before { content: "✓"; }
+  .wf-empty { border: 2px dashed var(--ink-3); border-radius: var(--radius); padding: 28px 16px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; color: var(--ink-2); }
+  .wf-skeleton { background: repeating-linear-gradient(90deg, var(--fill) 0 40%, var(--fill-2) 50%, var(--fill) 60% 100%); background-size: 200% 100%; animation: sk 1.4s linear infinite; border-radius: var(--radius); min-height: 14px; }
+  @keyframes sk { to { background-position: -200% 0; } }
+  @media (prefers-reduced-motion: reduce) { .wf-skeleton { animation: none; } }
+  .wf-sheet { margin-top: auto; border-top: 2px solid var(--line); border-radius: 16px 16px 0 0; padding: 14px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 -8px 0 rgba(0,0,0,.05); }
+  .wf-sheet::before { content: ""; width: 40px; height: 4px; background: var(--ink-3); border-radius: 2px; align-self: center; }
+  .wf-modal-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,.25); display: grid; place-items: center; padding: 20px; z-index: 5; }
+  .wf-modal { background: var(--paper); border: 2px solid var(--line); border-radius: var(--radius); padding: 16px; width: 100%; max-width: 360px; display: flex; flex-direction: column; gap: 10px; }
+  .wf-toast { position: absolute; left: 50%; bottom: 80px; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 8px 14px; border-radius: 999px; font-size: 12px; white-space: nowrap; z-index: 6; }
+  .wf-chat { display: flex; flex-direction: column; gap: 6px; }
+  .wf-bubble { max-width: 80%; border: 2px solid var(--line); border-radius: 12px 12px 12px 2px; padding: 8px 10px; align-self: flex-start; }
+  .wf-bubble.me { align-self: flex-end; border-radius: 12px 12px 2px 12px; background: var(--fill); }
+  .wf-fab { position: absolute; right: 16px; bottom: 76px; width: 52px; height: 52px; border-radius: 50%; border: 2px solid var(--line); background: var(--ink); color: #fff; display: grid; place-items: center; font-size: 22px; z-index: 4; }
+
+  /* ---------- interaction & annotation overlays ---------- */
+  [data-go] { cursor: pointer; }
+  .show-hot [data-go] { outline: 2px solid #f5b700; outline-offset: 2px; background-image: linear-gradient(var(--hot), var(--hot)); }
+  .flash [data-go] { animation: flash .6s ease 2; }
+  @keyframes flash { 50% { outline: 3px solid #f5b700; outline-offset: 2px; } }
+  .note { display: none; }
+  .show-notes .note { display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; background: #e54b4b; color: #fff; font: 700 10px/1 system-ui, sans-serif; vertical-align: top; margin-left: 4px; }
+  .show-notes .note::before { content: attr(data-n); }
+
+  @media (max-width: 1100px) {
+    .app { grid-template-columns: 1fr; height: auto; }
+    .side, .panel { border: 0; border-bottom: 1px solid #ddd; }
+    .stage { padding: 16px; }
+    .device { width: 100%; max-width: 390px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <h1>__FEATURE__</h1>
+    <div class="sub">Lo-fi wireframe · product-trio</div>
+    <div class="toolbar" role="group" aria-label="View options">
+      <button id="vp-mobile" aria-pressed="true">Mobile</button>
+      <button id="vp-desktop" aria-pressed="false">Desktop</button>
+      <button id="t-hot" aria-pressed="false" title="Show clickable areas (H)">Hotspots</button>
+      <button id="t-notes" aria-pressed="true" title="Show annotation markers (N)">Notes</button>
+    </div>
+    <h2>Flow</h2>
+    <select id="flow-select" aria-label="User flow"></select>
+    <h2>Screens</h2>
+    <ul class="scr-list" id="scr-list"></ul>
+  </aside>
+
+  <main class="stage">
+    <div class="crumbs" id="crumbs"></div>
+    <div class="device" id="device"></div>
+    <div class="flow-nav">
+      <button id="prev">← Prev in flow</button>
+      <button id="next">Next in flow →</button>
+    </div>
+  </main>
+
+  <aside class="panel">
+    <h2>Screen</h2>
+    <div id="p-title" class="wf-h2" style="font-size:15px"></div>
+    <h2>Traceability</h2>
+    <div id="p-trace"></div>
+    <h2>Annotations</h2>
+    <div id="p-notes"></div>
+    <h2>Navigates to</h2>
+    <div id="p-links"></div>
+  </aside>
+</div>
+
+<!-- ===================== SCREENS (edit below) ===================== -->
+<div id="screens">
+
+  <section class="screen" data-id="S-01" data-title="Example: Home" data-stories="US-01" data-bpmn="T-01">
+    <div class="wf-status"><span>9:41</span><span>▮▮▮</span></div>
+    <div class="wf-appbar"><span class="wf-icon">≡</span><span class="grow">App name</span><span class="wf-icon">⌕</span></div>
+    <div class="body">
+      <p class="wf-h1">Hello, Buyer<span class="note" data-n="1"></span></p>
+      <div class="wf-lines"><i></i></div>
+      <div class="wf-card">
+        <div class="wf-img" style="min-height:90px"></div>
+        <div class="wf-row between"><b>Last order</b><span class="wf-badge">Delivered</span></div>
+        <button class="wf-btn block" data-go="S-02">Reorder<span class="note" data-n="2"></span></button>
+      </div>
+    </div>
+    <nav class="wf-tabbar"><span class="on">Home</span><span>Orders</span><span>Account</span></nav>
+    <ol class="notes">
+      <li>Greeting uses the buyer's café name from the account (US-01).</li>
+      <li>Primary action. Fires event <code>reorder_started</code> (M-01).</li>
+    </ol>
+  </section>
+
+  <section class="screen" data-id="S-02" data-title="Example: Confirm" data-stories="US-02" data-bpmn="T-02">
+    <div class="wf-status"><span>9:41</span><span>▮▮▮</span></div>
+    <div class="wf-appbar"><span class="wf-icon" data-go="back">‹</span><span class="grow">Confirm order</span></div>
+    <div class="body">
+      <div class="wf-list">
+        <div><div class="wf-img" style="min-height:40px;width:40px"></div><div class="grow" style="flex:1">Item name<div class="wf-muted">Rp 000.000</div></div><div class="wf-stepper"><span>−</span><span>1</span><span>+</span></div></div>
+      </div>
+      <div class="wf-banner error">Example error state from UC-01 extension 3a.</div>
+      <button class="wf-btn block" data-go="S-01">Place order</button>
+    </div>
+    <ol class="notes"></ol>
+  </section>
+
+</div>
+<!-- =================== END SCREENS =================== -->
+
+<script>
+/* ---- edit: named user flows (ordered screen ids). First flow is the default. ---- */
+const FLOWS = [
+  { name: "Happy path", screens: ["S-01", "S-02"] }
+];
+
+/* ---------------- engine (no edits needed) ---------------- */
+(function () {
+  const $ = (s, r = document) => r.querySelector(s);
+  const src = [...document.querySelectorAll('#screens > .screen')];
+  const byId = Object.fromEntries(src.map(s => [s.dataset.id, s]));
+  const device = $('#device');
+  const store = {
+    get(k, d) { try { return localStorage.getItem('wf:' + k) ?? d; } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem('wf:' + k, v); } catch (e) {} }
+  };
+  let flowIdx = 0, history = [], current = null;
+
+  const flows = FLOWS.length ? FLOWS : [{ name: 'All screens', screens: src.map(s => s.dataset.id) }];
+  if (!FLOWS.some(f => f.name === 'All screens')) flows.push({ name: 'All screens', screens: src.map(s => s.dataset.id) });
+  flows.forEach((f, i) => $('#flow-select').add(new Option(f.name + ' (' + f.screens.length + ')', i)));
+
+  function list() {
+    const ul = $('#scr-list'); ul.innerHTML = '';
+    src.forEach(s => {
+      const li = document.createElement('li'), b = document.createElement('button');
+      const st = s.dataset.state && s.dataset.state !== 'default' ? '<span class="st">' + s.dataset.state + '</span>' : '';
+      b.innerHTML = '<span class="sid">' + s.dataset.id + '</span><span>' + (s.dataset.title || '') + '</span>' + st;
+      b.onclick = () => go(s.dataset.id);
+      b.setAttribute('aria-current', s.dataset.id === current);
+      li.appendChild(b); ul.appendChild(li);
+    });
+  }
+
+  function chips(label, csv) {
+    if (!csv) return '';
+    return '<div class="meta-row"><span class="wf-muted" style="width:52px">' + label + '</span>' +
+      csv.split(',').map(x => '<span class="chip">' + x.trim() + '</span>').join('') + '</div>';
+  }
+
+  function go(id, push = true) {
+    if (id === 'back') { history.pop(); id = history.pop() || flows[flowIdx].screens[0]; }
+    const s = byId[id];
+    if (!s) { device.innerHTML = '<div class="body"><div class="wf-empty">Missing screen ' + id + '</div></div>'; return; }
+    if (push) history.push(id);
+    current = id;
+    device.innerHTML = '';
+    const clone = s.cloneNode(true);
+    device.appendChild(clone);
+    device.scrollTop = 0;
+    clone.querySelectorAll('[data-go]').forEach(el => el.addEventListener('click', e => { e.preventDefault(); go(el.dataset.go); }));
+    clone.addEventListener('click', e => {
+      if (!e.target.closest('[data-go]')) { device.classList.remove('flash'); void device.offsetWidth; device.classList.add('flash'); }
+    });
+    $('#p-title').textContent = id + ' · ' + (s.dataset.title || '');
+    $('#p-trace').innerHTML = (chips('Stories', s.dataset.stories) + chips('BPMN', s.dataset.bpmn) + chips('State', s.dataset.state)) || '<div class="empty">No trace ids</div>';
+    const notes = s.querySelector('ol.notes');
+    $('#p-notes').innerHTML = notes && notes.children.length ? '<ol>' + notes.innerHTML + '</ol>' : '<div class="empty">No annotations</div>';
+    const targets = [...new Set([...s.querySelectorAll('[data-go]')].map(e => e.dataset.go))];
+    $('#p-links').innerHTML = targets.length ? targets.map(t => '<span class="chip wf-link" data-jump="' + t + '">' + t + (byId[t] ? ' ' + byId[t].dataset.title : '') + '</span>').join(' ') : '<div class="empty">Dead end</div>';
+    $('#p-links').querySelectorAll('[data-jump]').forEach(c => c.onclick = () => go(c.dataset.jump));
+    const f = flows[flowIdx].screens, i = f.indexOf(id);
+    $('#crumbs').innerHTML = '<span class="tag">' + id + '</span><span>' + (s.dataset.title || '') + '</span>' +
+      (i >= 0 ? '<span>· step ' + (i + 1) + ' of ' + f.length + ' in "' + flows[flowIdx].name + '"</span>' : '<span>· outside current flow</span>');
+    $('#prev').disabled = i <= 0; $('#next').disabled = i < 0 || i >= f.length - 1;
+    if (location.hash.slice(1) !== id) history.length && window.history.replaceState(null, '', '#' + id);
+    list();
+  }
+
+  function setVp(mode) {
+    device.classList.toggle('desktop', mode === 'desktop');
+    $('#vp-mobile').setAttribute('aria-pressed', mode !== 'desktop');
+    $('#vp-desktop').setAttribute('aria-pressed', mode === 'desktop');
+    store.set('vp', mode);
+  }
+  function toggle(btn, cls) {
+    const on = btn.getAttribute('aria-pressed') !== 'true';
+    btn.setAttribute('aria-pressed', on); device.classList.toggle(cls, on); store.set(cls, on ? '1' : '0');
+  }
+
+  $('#vp-mobile').onclick = () => setVp('mobile');
+  $('#vp-desktop').onclick = () => setVp('desktop');
+  $('#t-hot').onclick = () => toggle($('#t-hot'), 'show-hot');
+  $('#t-notes').onclick = () => toggle($('#t-notes'), 'show-notes');
+  $('#flow-select').onchange = e => { flowIdx = +e.target.value; history = []; go(flows[flowIdx].screens[0]); };
+  $('#prev').onclick = () => { const f = flows[flowIdx].screens; go(f[f.indexOf(current) - 1]); };
+  $('#next').onclick = () => { const f = flows[flowIdx].screens; go(f[f.indexOf(current) + 1]); };
+  document.addEventListener('keydown', e => {
+    if (e.target.matches('input,textarea,select')) return;
+    if (e.key === 'ArrowRight' && !$('#next').disabled) $('#next').click();
+    if (e.key === 'ArrowLeft' && !$('#prev').disabled) $('#prev').click();
+    if (e.key === 'h') $('#t-hot').click();
+    if (e.key === 'n') $('#t-notes').click();
+  });
+
+  setVp(store.get('vp', 'mobile'));
+  if (store.get('show-hot', '0') === '1') { $('#t-hot').setAttribute('aria-pressed', true); device.classList.add('show-hot'); }
+  if (store.get('show-notes', '1') === '1') { $('#t-notes').setAttribute('aria-pressed', true); device.classList.add('show-notes'); }
+  else $('#t-notes').setAttribute('aria-pressed', false);
+  const start = byId[location.hash.slice(1)] ? location.hash.slice(1) : flows[0].screens[0];
+  go(start);
+})();
+</script>
+</body>
+</html>

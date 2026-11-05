@@ -1,0 +1,7 @@
+{
+  "name": "product-trio",
+  "version": "0.1.0",
+  "description": "Business Analyst (BPMN 2.0), Product Manager (vision, strategy, metrics, use cases, user stories) and UX Designer (clickable lo-fi wireframes) skills, linked end to end by traceable IDs.",
+  "author": { "name": "Agung" },
+  "keywords": ["bpmn", "business-analysis", "product-management", "user-story", "use-case", "wireframe", "ux"]
+}
