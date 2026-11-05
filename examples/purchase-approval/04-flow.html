@@ -120,8 +120,15 @@
     const res = await viewer.importXML(xml);
     if (res.warnings && res.warnings.length) console.warn(res.warnings);
   } catch (e) { err.style.display = 'block'; err.textContent = 'Import error: ' + e.message; return; }
+  if (new URLSearchParams(location.search).get('export') === 'svg') {
+    /* used by tools/capture-previews.sh: dump the diagram as SVG text */
+    const { svg } = await viewer.saveSVG();
+    const pre = document.createElement('pre'); pre.id = 'svg-out'; pre.textContent = svg;
+    document.body.replaceChildren(pre);
+    return;
+  }
   const canvas = viewer.get('canvas');
-  const fit = () => { try { canvas.resized(); canvas.zoom('fit-viewport', 'auto'); } catch (e) { /* container not sized yet */ } };
+  const fit =() => { try { canvas.resized(); canvas.zoom('fit-viewport', 'auto'); } catch (e) { /* container not sized yet */ } };
   requestAnimationFrame(fit);
   window.addEventListener('resize', fit);
   document.getElementById('fit').onclick = fit;

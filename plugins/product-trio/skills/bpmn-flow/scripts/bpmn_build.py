@@ -334,12 +334,18 @@ def layout(spec, by_id, out_e, in_e):
                 pts = [sb, (sb[0], yy), (tb[0], yy), tb]
             elif abs(a[1] - b[1]) < 1:
                 pts = [a, b]
-            elif by_id[f["from"]]["type"] in GATEWAY_TYPES:
+            elif by_id[f["from"]]["type"] in GATEWAY_TYPES and not any(
+                    o not in (f["from"], f["to"]) and o_sh[0] < s[0] + s[2] / 2 < o_sh[0] + o_sh[2]
+                    and min(a[1], b[1]) < o_sh[1] + o_sh[3] and o_sh[1] < max(a[1], b[1])
+                    for o, o_sh in shapes.items()):
                 # leave gateway from top/bottom, then horizontally into target
                 a = top(s) if b[1] < a[1] else bottom(s)
                 pts = [a, (a[0], b[1]), b]
             else:
                 mx = a[0] + (b[0] - a[0]) / 2
+                if by_id[f["from"]]["type"] in GATEWAY_TYPES:
+                    # just past the widest node of this column, clear of task-to-task elbows
+                    mx = s[0] + s[2] / 2 + SIZE["task"][0] / 2 + 12
                 pts = [a, (mx, a[1]), (mx, b[1]), b]
         edges[f["id"]] = pts
 
@@ -496,9 +502,17 @@ def to_xml(spec, by_id, out_e, in_e, lay):
             f["id"], quoteattr(f["id"]), pts, label))
     for m in spec.get("messageFlows") or []:
         if lay["medges"].get(m["id"]):
-            pts = "".join('<di:waypoint x="%s" y="%s" />' % (fmt(x), fmt(y)) for x, y in lay["medges"][m["id"]])
-            w('      <bpmndi:BPMNEdge id="%s_di" bpmnElement=%s>%s</bpmndi:BPMNEdge>' % (
-                m["id"], quoteattr(m["id"]), pts))
+            mp = lay["medges"][m["id"]]
+            pts = "".join('<di:waypoint x="%s" y="%s" />' % (fmt(x), fmt(y)) for x, y in mp)
+            label = ""
+            if m.get("name"):
+                # beside the line, inside the gap between pools (clear of lane borders)
+                y_top = min(mp[0][1], mp[1][1])
+                ly = y_top + GAP / 2 - 7 if any(abs(y_top - (b[1] + b[3])) < 1 for b in lay["ext_box"].values()) \
+                    else max(mp[0][1], mp[1][1]) - GAP / 2 - 7
+                label = '<bpmndi:BPMNLabel>%s</bpmndi:BPMNLabel>' % bounds((mp[0][0] + 6, ly, 90, 14))
+            w('      <bpmndi:BPMNEdge id="%s_di" bpmnElement=%s>%s%s</bpmndi:BPMNEdge>' % (
+                m["id"], quoteattr(m["id"]), pts, label))
     w('    </bpmndi:BPMNPlane>')
     w('  </bpmndi:BPMNDiagram>')
     w('</bpmn:definitions>')
@@ -551,8 +565,15 @@ PREVIEW = """<!doctype html>
     const res = await viewer.importXML(xml);
     if (res.warnings && res.warnings.length) console.warn(res.warnings);
   } catch (e) { err.style.display = 'block'; err.textContent = 'Import error: ' + e.message; return; }
+  if (new URLSearchParams(location.search).get('export') === 'svg') {
+    /* used by tools/capture-previews.sh: dump the diagram as SVG text */
+    const { svg } = await viewer.saveSVG();
+    const pre = document.createElement('pre'); pre.id = 'svg-out'; pre.textContent = svg;
+    document.body.replaceChildren(pre);
+    return;
+  }
   const canvas = viewer.get('canvas');
-  const fit = () => { try { canvas.resized(); canvas.zoom('fit-viewport', 'auto'); } catch (e) { /* container not sized yet */ } };
+  const fit =() => { try { canvas.resized(); canvas.zoom('fit-viewport', 'auto'); } catch (e) { /* container not sized yet */ } };
   requestAnimationFrame(fit);
   window.addEventListener('resize', fit);
   document.getElementById('fit').onclick = fit;

@@ -179,6 +179,28 @@
     .stage { padding: 16px; }
     .device { width: 100%; max-width: 390px; }
   }
+  /* ---------- overview (storyboard) mode ---------- */
+  #ov { display: none; padding: 28px 24px 40px; }
+  .overview .app { display: none; }
+  .overview #ov { display: block; }
+  .ov-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+  .ov-head h1 { font-size: 20px; margin: 0; }
+  .ov-head .wf-muted { font-size: 13px; }
+  .ov-head button { font: inherit; font-size: 12px; padding: 5px 10px; border: 1px solid #ccc; border-radius: 6px; background: #fff; cursor: pointer; margin-left: auto; }
+  .ov-grid { display: flex; flex-wrap: wrap; gap: 28px 34px; align-items: flex-start; }
+  .ov-item { display: flex; flex-direction: column; gap: 8px; position: relative; cursor: zoom-in; }
+  .ov-item:not(:last-child)::after { content: "→"; position: absolute; right: -26px; top: 46%; font-size: 20px; color: var(--ink-2); }
+  .ov-label { font-size: 12px; display: grid; grid-template-columns: auto 1fr; column-gap: 6px; row-gap: 2px; align-items: center; height: 36px; width: 242px; }
+  .ov-label b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ov-label .st { grid-column: 1 / -1; }
+  .ov-desk .ov-label { width: 495px; }
+  .ov-label .tag { font-family: ui-monospace, monospace; background: var(--ink); color: #fff; border-radius: 4px; padding: 1px 6px; }
+  .ov-label .st { font-family: ui-monospace, monospace; color: var(--ink-2); }
+  .ov-frame { zoom: .62; }
+  .ov-frame .device { min-height: 780px; box-shadow: none; }
+  .ov-frame .device.desktop { width: 1100px; min-height: 680px; }
+  .ov-desk .ov-frame { zoom: .45; }
+  .ov-clean .ov-head button { display: none; }
 </style>
 </head>
 <body>
@@ -191,6 +213,7 @@
       <button id="vp-desktop" aria-pressed="false">Desktop</button>
       <button id="t-hot" aria-pressed="false" title="Show clickable areas (H)">Hotspots</button>
       <button id="t-notes" aria-pressed="true" title="Show annotation markers (N)">Notes</button>
+      <button id="t-ov" aria-pressed="false" title="All screens of the flow side by side (O)">Overview</button>
     </div>
     <h2>Flow</h2>
     <select id="flow-select" aria-label="User flow"></select>
@@ -219,6 +242,7 @@
   </aside>
 </div>
 
+<div id="ov"></div>
 <!-- ===================== SCREENS (edit below) ===================== -->
 <div id="screens">
 
@@ -356,9 +380,40 @@ const FLOWS = [
   if (store.get('show-hot', '0') === '1') { $('#t-hot').setAttribute('aria-pressed', true); device.classList.add('show-hot'); }
   if (store.get('show-notes', '1') === '1') { $('#t-notes').setAttribute('aria-pressed', true); device.classList.add('show-notes'); }
   else $('#t-notes').setAttribute('aria-pressed', false);
+  /* overview: ?overview=1&flow=<index>&vp=mobile|desktop&notes=0|1, or the Overview button */
+  function overview(on) {
+    document.body.classList.toggle('overview', on);
+    const ov = $('#ov');
+    if (!on) { ov.innerHTML = ''; return; }
+    const f = flows[flowIdx], desk = device.classList.contains('desktop'), notes = device.classList.contains('show-notes');
+    ov.innerHTML = '<div class="ov-head"><h1>' + document.title.replace(/ - Lo-fi Wireframe$/, '') + '</h1><span class="wf-muted">' +
+      f.name + ' · ' + f.screens.length + ' screens</span><button id="ov-close">Back to prototype (Esc)</button></div><div class="ov-grid"></div>';
+    const grid = ov.querySelector('.ov-grid');
+    f.screens.forEach(id => {
+      const s = byId[id]; if (!s) return;
+      const item = document.createElement('div'); item.className = 'ov-item' + (desk ? ' ov-desk' : '');
+      item.innerHTML = '<div class="ov-label"><span class="tag">' + id + '</span><b>' + (s.dataset.title || '') + '</b>' +
+        (s.dataset.stories ? '<span class="st">' + s.dataset.stories + '</span>' : '') + '</div>';
+      const frame = document.createElement('div'); frame.className = 'ov-frame';
+      const d = document.createElement('div'); d.className = 'device' + (desk ? ' desktop' : '') + (notes ? ' show-notes' : '');
+      d.appendChild(s.cloneNode(true)); frame.appendChild(d); item.appendChild(frame);
+      item.onclick = () => { overview(false); setOvBtn(false); go(id); };
+      grid.appendChild(item);
+    });
+    $('#ov-close').onclick = () => { overview(false); setOvBtn(false); };
+  }
+  function setOvBtn(on) { $('#t-ov').setAttribute('aria-pressed', on); }
+  $('#t-ov').onclick = () => { const on = !document.body.classList.contains('overview'); setOvBtn(on); overview(on); };
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && document.body.classList.contains('overview')) $('#ov-close').click(); if (e.key === 'o' && !e.target.matches('input,textarea,select')) $('#t-ov').click(); });
   window.addEventListener('hashchange', () => { const h = decodeURIComponent(location.hash.slice(1)); if (byId[h] && h !== current) go(h); });
   const start = byId[location.hash.slice(1)] ? location.hash.slice(1) : flows[0].screens[0];
   go(start);
+  const qp = new URLSearchParams(location.search);
+  if (qp.get('vp')) setVp(qp.get('vp'));
+  if (qp.get('notes') === '0') { $('#t-notes').setAttribute('aria-pressed', false); device.classList.remove('show-notes'); }
+  if (qp.get('flow') && flows[+qp.get('flow')]) { flowIdx = +qp.get('flow'); $('#flow-select').value = flowIdx; if (!byId[location.hash.slice(1)]) go(flows[flowIdx].screens[0]); }
+  if (qp.get('clean') === '1') document.body.classList.add('ov-clean');
+  if (qp.get('overview') === '1') { setOvBtn(true); overview(true); }
 })();
 </script>
 </body>

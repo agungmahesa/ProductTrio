@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>product-trio social preview</title>
+<!-- Rendered to docs/images/social-preview.png (1280x640) by tools/capture-previews.sh -->
+<style>
+  :root { --paper: #f4f4f2; --ink: #1d1d1f; --ink-2: #6b6b70; --line: #d9d9d4; --card: #fff; --accent: #2f6f4f; }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1280px; height: 640px; overflow: hidden; }
+  body { background: var(--paper); color: var(--ink); font-family: ui-sans-serif, -apple-system, "SF Pro Display", "Helvetica Neue", Arial, sans-serif; position: relative; }
+  .grid-bg { position: absolute; inset: 0; background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px); background-size: 32px 32px; opacity: .35; }
+  .left { position: absolute; left: 72px; top: 76px; width: 520px; }
+  .kicker { font: 600 15px/1 ui-monospace, "SF Mono", Menlo, monospace; letter-spacing: .04em; color: var(--accent); text-transform: uppercase; }
+  h1 { font-size: 84px; line-height: .95; letter-spacing: -.035em; font-weight: 800; margin-top: 22px; }
+  .sub { font-size: 25px; line-height: 1.3; color: var(--ink-2); margin-top: 22px; }
+  .sub b { color: var(--ink); font-weight: 650; }
+  .roles { display: flex; gap: 10px; margin-top: 34px; flex-wrap: wrap; }
+  .role { background: var(--card); border: 1.5px solid var(--ink); border-radius: 999px; padding: 8px 16px; font-size: 17px; font-weight: 600; }
+  .chain { position: absolute; left: 72px; bottom: 56px; display: flex; align-items: center; gap: 8px; font: 500 14px/1 ui-monospace, "SF Mono", Menlo, monospace; color: var(--ink-2); }
+  .chain span.id { background: var(--ink); color: #fff; border-radius: 5px; padding: 6px 8px; }
+  .right { position: absolute; right: -40px; top: 52px; width: 660px; height: 560px; }
+  .card { position: absolute; background: var(--card); border: 1.5px solid var(--ink); border-radius: 14px; overflow: hidden; box-shadow: 0 18px 40px rgba(0,0,0,.10); }
+  .card .bar { height: 26px; border-bottom: 1.5px solid var(--ink); display: flex; align-items: center; gap: 6px; padding: 0 10px; font: 600 11px ui-monospace, Menlo, monospace; color: var(--ink-2); }
+  .card .bar i { width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid var(--ink-2); }
+  .bpmn { left: 0; top: 0; width: 640px; height: 250px; }
+  .bpmn img { width: 1180px; margin: 10px 0 0 -8px; }
+  .wf { left: 70px; top: 280px; width: 600px; height: 260px; }
+  .wf img { width: 1420px; margin: 8px 0 0 -6px; }
+  .tag { position: absolute; font: 600 12px ui-monospace, Menlo, monospace; background: var(--accent); color: #fff; padding: 5px 9px; border-radius: 6px; }
+</style>
+</head>
+<body>
+  <div class="grid-bg"></div>
+  <div class="left">
+    <div class="kicker">Claude Code plugin</div>
+    <h1>product-trio</h1>
+    <p class="sub">From product vision to <b>BPMN 2.0 flows</b>, <b>user stories</b> and <b>clickable lo-fi wireframes</b>, all traceable.</p>
+    <div class="roles"><span class="role">Business Analyst</span><span class="role">Product Manager</span><span class="role">UX Designer</span></div>
+  </div>
+  <div class="chain"><span class="id">B-01</span>→<span class="id">M-01</span>→<span class="id">T-05</span>→<span class="id">UC-02</span>→<span class="id">US-10</span>→<span class="id">S-12</span></div>
+  <div class="right">
+    <div class="card bpmn"><div class="bar"><i></i><i></i><i></i>&nbsp;04-flow.bpmn</div><img src="images/bpmn-b2b-wa-order.svg" alt=""></div>
+    <div class="card wf"><div class="bar"><i></i><i></i><i></i>&nbsp;07-wireframe.html</div><img src="images/wireframe-buyer-flow.png" alt=""></div>
+    <span class="tag" style="left:-14px;top:232px">BPMN 2.0</span>
+    <span class="tag" style="left:56px;top:522px">Lo-fi prototype</span>
+  </div>
+</body>
+</html>
