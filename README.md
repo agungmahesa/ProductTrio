@@ -16,12 +16,16 @@ and the strategic bet behind it.
 
 ```mermaid
 flowchart LR
-  V["🎯 Vision"] --> S["♟️ Strategy<br/><code>B-xx</code>"] --> M["📈 Metrics<br/><code>M-xx</code>"]
-  M --> F["🔀 BPMN 2.0<br/><code>T-xx · G-xx</code>"] --> U["📋 Use cases<br/><code>UC-xx</code>"]
-  U --> ST["🧩 User stories<br/><code>US-xx</code>"] --> W["📱 Lo-fi wireframe<br/><code>S-xx</code>"]
+  V["🎯 Vision"] --> S["♟️ Strategy<br/>B-xx"] --> M["📈 Metrics<br/>M-xx"]
+  M --> F["🔀 BPMN 2.0<br/>T-xx, G-xx"] --> U["📋 Use cases<br/>UC-xx"]
+  U --> ST["🧩 User stories<br/>US-xx"] --> W["📱 Lo-fi wireframe<br/>S-xx"]
   W -.-> T["🔗 traceability.md"]
-  classDef pm fill:#eef4f0,stroke:#2f6f4f; classDef ba fill:#f2f0ea,stroke:#8a6d1f; classDef ux fill:#eef0f6,stroke:#3d4f8a;
-  class V,S,M,U,ST pm; class F ba; class W ux;
+  classDef pm fill:#eef4f0,stroke:#2f6f4f
+  classDef ba fill:#f2f0ea,stroke:#8a6d1f
+  classDef ux fill:#eef0f6,stroke:#3d4f8a
+  class V,S,M,U,ST pm
+  class F ba
+  class W ux
 ```
 
 ## What you get
