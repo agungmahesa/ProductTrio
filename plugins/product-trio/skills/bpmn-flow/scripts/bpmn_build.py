@@ -147,6 +147,9 @@ def validate(spec, rep):
             rep.err("%s %s has no outgoing sequence flow (dead end)" % (t, nid))
         if t in TASK_TYPES and outs > 1:
             rep.warn("task %s has %d outgoing flows; use a gateway to make the split explicit" % (nid, outs))
+        if t in TASK_TYPES and ins > 1:
+            rep.warn("task %s has %d incoming flows (implicit merge); add an exclusive merge gateway before it"
+                     % (nid, ins))
         if t in GATEWAY_TYPES:
             if ins > 1 and outs > 1:
                 rep.warn("gateway %s both joins and splits; use two gateways for clarity" % nid)
@@ -291,7 +294,14 @@ def layout(spec, by_id, out_e, in_e):
         shapes[n["id"]] = (cx - w / 2, cy - h / 2, w, h)
 
     ext_box, ey = {}, y + GAP
+    tops = [ep for ep in spec.get("externalPools") or [] if ep.get("position") == "top"]
+    ty = pool_y - GAP - BLACKBOX_H
+    for ep in reversed(tops):
+        ext_box[ep["id"]] = (0, ty, width, BLACKBOX_H)
+        ty -= BLACKBOX_H + GAP
     for ep in spec.get("externalPools") or []:
+        if ep.get("position") == "top":
+            continue
         ext_box[ep["id"]] = (0, ey, width, BLACKBOX_H)
         ey += BLACKBOX_H + GAP
 
@@ -334,15 +344,35 @@ def layout(spec, by_id, out_e, in_e):
         edges[f["id"]] = pts
 
     medges = {}
+    used = defaultdict(int)   # spread several message flows on one node side
     for m in spec.get("messageFlows") or []:
         a, b = m["from"], m["to"]
-        if a in shapes and b in ext_box:
-            p = bottom(shapes[a]); medges[m["id"]] = [p, (p[0], ext_box[b][1])]
-        elif a in ext_box and b in shapes:
-            p = bottom(shapes[b]); x = p[0] + 15
-            medges[m["id"]] = [(x, ext_box[a][1]), (x, p[1])]
-        else:
+        pool_id, node_id = (b, a) if b in ext_box else (a, b)
+        if node_id not in shapes or pool_id not in ext_box:
             medges[m["id"]] = []
+            continue
+        sh, pb = shapes[node_id], ext_box[pool_id]
+        above = pb[1] < sh[1]
+        k = used[(node_id, above)]; used[(node_id, above)] += 1
+        x = sh[0] + sh[2] / 2 + (k * 16 - 8 if sh[2] >= 50 else 0) * (1 if k else 0)
+        node_y = sh[1] if above else sh[1] + sh[3]
+        pool_y_edge = pb[1] + pb[3] if above else pb[1]
+        lo, hi = min(node_y, pool_y_edge), max(node_y, pool_y_edge)
+
+        def blocked(xx):
+            return any(o != node_id and o_sh[0] - 4 <= xx <= o_sh[0] + o_sh[2] + 4
+                       and o_sh[1] < hi and o_sh[1] + o_sh[3] > lo
+                       for o, o_sh in shapes.items())
+        if blocked(x):
+            half = sh[2] / 2 - 6
+            for dx in (half, -half, half * .6, -half * .6):
+                if not blocked(sh[0] + sh[2] / 2 + dx):
+                    x = sh[0] + sh[2] / 2 + dx
+                    break
+        if node_id == a:
+            medges[m["id"]] = [(x, node_y), (x, pool_y_edge)]
+        else:
+            medges[m["id"]] = [(x, pool_y_edge), (x, node_y)]
     return dict(shapes=shapes, lane_box=lane_box, pool_box=pool_box, ext_box=ext_box,
                 edges=edges, medges=medges)
 

@@ -74,11 +74,19 @@ system-named lanes. Spec format: `plugins/product-trio/skills/bpmn-flow/referenc
 prototype engine: screens are `<section>`s, `data-go` links them, `FLOWS` defines journeys.
 Keys: ← → step through a flow, H hotspots, N annotations.
 
-## Example
+## Examples
 
-`examples/b2b-reorder/` contains a BPMN example (cafe reorder with stock check, substitute
-offer, payment timeout via event-based gateway, parallel packing) and
-`examples/purchase-approval/` shows a rework loop. Open each `04-flow.html`.
+- `examples/b2b-wa-order/` - **full `/discovery` run** on a real feature (B2B order via WhatsApp
+  Flow, Jurnal.id invoice, JNE/J&T shipping): vision, strategy, metrics, BPMN with the customer
+  pool on top, 4 use cases, 15 user stories, an 18-screen clickable wireframe and the
+  traceability matrix.
+- `examples/purchase-approval/` - small BPMN with a rework loop.
+
+Serve the repo and open the HTML files (bpmn-js needs http, not file://):
+
+```bash
+python3 -m http.server 8765
+```
 
 ## Layout
 

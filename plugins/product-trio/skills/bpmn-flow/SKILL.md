@@ -27,6 +27,8 @@ Ask (or infer and log as assumptions):
 1. Process name, trigger (what starts it) and the outcome(s) that end it.
 2. As-is or to-be? (If both are useful, model as-is first, then to-be with changes highlighted.)
 3. Roles involved -> lanes. External parties (customer org, bank, courier) -> external pools.
+   When the customer is another organisation (B2B) or the process is seen from the company's
+   side, model the customer as an external pool with `"position": "top"` and use message flows.
 4. Happy path steps in order, and who does each.
 5. Decisions, waiting points (timers, waiting for a message), parallel work, and exceptions
    (rejections, timeouts, cancellations, errors).

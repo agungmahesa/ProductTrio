@@ -1,10 +1,93 @@
-{"id":"approval","name":"Purchase approval with rework loop","pool":{"name":"Company","lanes":[{"id":"L-Req","name":"Requester"},{"id":"L-Mgr","name":"Manager"}]},
-"nodes":[
-{"id":"E-01","type":"startEvent","name":"Need item","lane":"L-Req"},
-{"id":"T-01","type":"userTask","name":"Fill request","lane":"L-Req"},
-{"id":"T-02","type":"userTask","name":"Review request","lane":"L-Mgr"},
-{"id":"G-01","type":"exclusiveGateway","name":"Approved?","lane":"L-Mgr"},
-{"id":"T-03","type":"userTask","name":"Revise request","lane":"L-Req"},
-{"id":"E-02","type":"endEvent","name":"Request approved","lane":"L-Mgr"}],
-"flows":[{"from":"E-01","to":"T-01"},{"from":"T-01","to":"T-02"},{"from":"T-02","to":"G-01"},
-{"from":"G-01","to":"E-02","name":"Yes"},{"from":"G-01","to":"T-03","name":"Needs changes"},{"from":"T-03","to":"T-02"}]}
+{
+  "id": "approval",
+  "name": "Purchase approval with rework loop",
+  "pool": {
+    "name": "Company",
+    "lanes": [
+      {
+        "id": "L-Req",
+        "name": "Requester"
+      },
+      {
+        "id": "L-Mgr",
+        "name": "Manager"
+      }
+    ]
+  },
+  "nodes": [
+    {
+      "id": "E-01",
+      "type": "startEvent",
+      "name": "Need item",
+      "lane": "L-Req"
+    },
+    {
+      "id": "T-01",
+      "type": "userTask",
+      "name": "Fill request",
+      "lane": "L-Req"
+    },
+    {
+      "id": "G-02",
+      "type": "exclusiveGateway",
+      "name": "",
+      "lane": "L-Mgr"
+    },
+    {
+      "id": "T-02",
+      "type": "userTask",
+      "name": "Review request",
+      "lane": "L-Mgr"
+    },
+    {
+      "id": "G-01",
+      "type": "exclusiveGateway",
+      "name": "Approved?",
+      "lane": "L-Mgr"
+    },
+    {
+      "id": "T-03",
+      "type": "userTask",
+      "name": "Revise request",
+      "lane": "L-Req"
+    },
+    {
+      "id": "E-02",
+      "type": "endEvent",
+      "name": "Request approved",
+      "lane": "L-Mgr"
+    }
+  ],
+  "flows": [
+    {
+      "from": "E-01",
+      "to": "T-01"
+    },
+    {
+      "from": "T-01",
+      "to": "G-02"
+    },
+    {
+      "from": "T-02",
+      "to": "G-01"
+    },
+    {
+      "from": "G-01",
+      "to": "E-02",
+      "name": "Yes"
+    },
+    {
+      "from": "G-01",
+      "to": "T-03",
+      "name": "Needs changes"
+    },
+    {
+      "from": "T-03",
+      "to": "G-02"
+    },
+    {
+      "from": "G-02",
+      "to": "T-02"
+    }
+  ]
+}

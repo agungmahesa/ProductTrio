@@ -14,7 +14,8 @@
     ]
   },
   "externalPools": [                          // optional black-box pools for message flows
-    { "id": "P-Bank", "name": "Payment gateway" }
+    { "id": "P-Customer", "name": "Customer", "position": "top" },   // customer above (convention)
+    { "id": "P-Bank", "name": "Payment gateway" }                    // default: below
   ],
   "nodes": [
     { "id": "E-01", "type": "startEvent", "name": "Reorder needed", "lane": "L-Buyer" },
@@ -48,6 +49,10 @@
 - `nodes[].timer` (timer events): ISO 8601 duration, e.g. `PT24H`.
 - `nodes[].column` (optional int): force horizontal rank; otherwise computed from flow order.
 - `flows[].id` optional (auto `Flow_n`); `name` = condition label; `default: true` marks default flow.
+- `externalPools[].position`: `top` or `bottom` (default). Put the customer on top, suppliers/systems below.
 - `messageFlows[]`: one end must be an external pool id, the other a node id.
 
-Order nodes roughly in process order; vertical order inside a lane follows array order.
+Order nodes in process order with the **happy path first**: when two nodes share a lane and a
+column, the earlier one gets the top row, so list the main-path node before exception nodes
+(e.g. 'Mark order paid' before the 'Follow up payment' merge). That keeps the happy path on a
+straight line.

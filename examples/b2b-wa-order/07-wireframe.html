@@ -1,0 +1,635 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>B2B WhatsApp Order - Lo-fi Wireframe</title>
+<!--
+  product-trio lo-fi wireframe template
+  ------------------------------------------------------------------
+  HOW TO FILL (for the lofi-wireframe skill):
+  1. Replace B2B WhatsApp Order (title + header).
+  2. Fill the FLOWS array in the <script> (named journeys = ordered screen ids).
+  3. Add one <section class="screen"> per screen inside #screens:
+       data-id       S-01, S-02 ...            (required, unique)
+       data-title    short screen name         (required)
+       data-stories  "US-01,US-02"             (story ids shown on this screen)
+       data-bpmn     "T-01"                    (BPMN node ids this screen serves)
+       data-state    default | empty | loading | error | success  (optional, default "default")
+  4. Make it clickable: any element with data-go="S-0x" navigates to that screen.
+     data-go="back" goes to the previous screen.
+  5. Annotations: put <span class="note" data-n="1">...</span> markers in the UI and the
+     matching text in <ol class="notes"> at the end of the section (rendered in the side panel).
+  6. Use only the wf-* building blocks below. Grayscale only. No brand colours, no images,
+     no real copywriting polish - real labels, but lo-fi visuals.
+  Do not edit the CSS/JS engine unless a building block is genuinely missing.
+-->
+<style>
+  :root {
+    --bg: #f4f4f2; --paper: #ffffff; --ink: #2b2b2b; --ink-2: #6e6e6e; --ink-3: #a9a9a9;
+    --line: #2b2b2b; --fill: #e6e6e3; --fill-2: #d2d2ce; --hot: rgba(255, 196, 0, .35);
+    --radius: 6px; --font: "Comic Neue", "Segoe Print", "Chalkboard SE", ui-rounded, system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body { background: var(--bg); color: var(--ink); font: 14px/1.4 system-ui, -apple-system, Segoe UI, sans-serif; }
+
+  /* ---------- app chrome ---------- */
+  .app { display: grid; grid-template-columns: 240px 1fr 300px; height: 100vh; }
+  .side, .panel { background: var(--paper); border-right: 1px solid #ddd; overflow: auto; padding: 14px; }
+  .panel { border-right: 0; border-left: 1px solid #ddd; }
+  .side h1 { font-size: 15px; margin: 0 0 2px; }
+  .side .sub { color: var(--ink-2); font-size: 12px; margin-bottom: 12px; }
+  .side h2, .panel h2 { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-2); margin: 16px 0 6px; }
+  .side select { width: 100%; padding: 6px; font: inherit; border: 1px solid #ccc; border-radius: 6px; background: #fff; }
+  .scr-list { list-style: none; margin: 0; padding: 0; }
+  .scr-list button { all: unset; display: flex; gap: 6px; width: 100%; padding: 6px 8px; border-radius: 6px; cursor: pointer; font-size: 13px; box-sizing: border-box; }
+  .scr-list button:hover { background: #f0f0ee; }
+  .scr-list button[aria-current="true"] { background: var(--ink); color: #fff; }
+  .scr-list .sid { font-family: ui-monospace, monospace; font-size: 11px; opacity: .7; min-width: 36px; }
+  .scr-list .st { margin-left: auto; font-size: 10px; opacity: .7; }
+  .toolbar { display: flex; gap: 6px; flex-wrap: wrap; }
+  .toolbar button { font: inherit; font-size: 12px; padding: 5px 9px; border: 1px solid #ccc; border-radius: 6px; background: #fff; cursor: pointer; }
+  .toolbar button[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+  .stage { overflow: auto; display: flex; flex-direction: column; align-items: center; padding: 24px 16px 48px; gap: 12px; }
+  .crumbs { font-size: 12px; color: var(--ink-2); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: center; }
+  .crumbs .tag { font-family: ui-monospace, monospace; background: #fff; border: 1px solid #ccc; border-radius: 4px; padding: 1px 6px; }
+  .device { background: var(--paper); border: 2px solid var(--line); border-radius: 28px; width: 390px; min-height: 780px; position: relative; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,.08); }
+  .device.desktop { width: min(1100px, 100%); min-height: 680px; border-radius: 10px; }
+  .device.desktop::before { content: "● ● ●"; display: block; padding: 6px 12px; font-size: 10px; letter-spacing: 2px; color: var(--ink-3); border-bottom: 2px solid var(--line); }
+  .flow-nav { display: flex; gap: 8px; }
+  .flow-nav button { font: inherit; font-size: 12px; padding: 5px 10px; border: 1px solid #ccc; border-radius: 6px; background: #fff; cursor: pointer; }
+  .flow-nav button:disabled { opacity: .4; cursor: default; }
+
+  .panel .meta-row { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
+  .panel .chip { font-family: ui-monospace, monospace; font-size: 11px; border: 1px solid #ccc; border-radius: 4px; padding: 1px 6px; }
+  .panel ol { padding-left: 20px; margin: 6px 0; }
+  .panel li { margin-bottom: 8px; }
+  .panel .empty { color: var(--ink-3); font-style: italic; }
+
+  /* ---------- screens ---------- */
+  #screens > .screen { display: none; }
+  .device > .screen { display: flex; flex-direction: column; flex: 1; font-family: var(--font); }
+  .screen > .notes { display: none; }
+  .body { flex: 1; padding: 14px; display: flex; flex-direction: column; gap: 12px; overflow: auto; }
+  .device.desktop .body { padding: 20px 28px; }
+
+  /* ---------- lo-fi building blocks (wf-*) ---------- */
+  .wf-status { height: 22px; font-size: 10px; display: flex; justify-content: space-between; padding: 4px 18px; color: var(--ink-2); }
+  .device.desktop .wf-status { display: none; }
+  .wf-appbar { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 2px solid var(--line); font-weight: 700; }
+  .wf-appbar .grow { flex: 1; }
+  .wf-tabbar { display: flex; border-top: 2px solid var(--line); }
+  .wf-tabbar > * { flex: 1; text-align: center; padding: 10px 4px; font-size: 11px; border-right: 1px dashed var(--ink-3); }
+  .wf-tabbar > *:last-child { border-right: 0; }
+  .wf-tabbar .on { font-weight: 700; text-decoration: underline; }
+  .wf-sidebar { border-right: 2px solid var(--line); padding: 12px; display: flex; flex-direction: column; gap: 8px; min-width: 180px; }
+  .wf-row { display: flex; gap: 10px; align-items: center; }
+  .wf-row.between { justify-content: space-between; }
+  .wf-col { display: flex; flex-direction: column; gap: 8px; }
+  .wf-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+  .wf-split { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .device:not(.desktop) .wf-split { grid-template-columns: 1fr; }
+  .wf-h1 { font-size: 22px; font-weight: 700; margin: 0; }
+  .wf-h2 { font-size: 17px; font-weight: 700; margin: 0; }
+  .wf-text { margin: 0; color: var(--ink); }
+  .wf-muted { color: var(--ink-2); font-size: 12px; }
+  .wf-lines { display: flex; flex-direction: column; gap: 6px; }
+  .wf-lines::before, .wf-lines::after, .wf-lines > i { content: ""; display: block; height: 8px; background: var(--fill); border-radius: 4px; }
+  .wf-lines::after { width: 60%; }
+  .wf-img { background: var(--fill); border: 2px solid var(--line); border-radius: var(--radius); min-height: 110px; position: relative; overflow: hidden; }
+  .wf-img::before, .wf-img::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top right, transparent calc(50% - 1px), var(--ink-3) 50%, transparent calc(50% + 1px)); }
+  .wf-img::after { background: linear-gradient(to top left, transparent calc(50% - 1px), var(--ink-3) 50%, transparent calc(50% + 1px)); }
+  .wf-avatar { width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--line); background: var(--fill); flex: none; }
+  .wf-icon { width: 22px; height: 22px; border: 2px solid var(--line); border-radius: 5px; flex: none; display: inline-grid; place-items: center; font-size: 12px; line-height: 1; }
+  .wf-card { border: 2px solid var(--line); border-radius: var(--radius); padding: 12px; display: flex; flex-direction: column; gap: 8px; background: var(--paper); }
+  .wf-list { border: 2px solid var(--line); border-radius: var(--radius); }
+  .wf-list > * { display: flex; gap: 10px; align-items: center; padding: 10px 12px; border-bottom: 1px dashed var(--ink-3); }
+  .wf-list > *:last-child { border-bottom: 0; }
+  .wf-btn { font: inherit; font-weight: 700; border: 2px solid var(--line); border-radius: var(--radius); background: var(--ink); color: #fff; padding: 11px 14px; text-align: center; cursor: pointer; }
+  .wf-btn.secondary { background: var(--paper); color: var(--ink); }
+  .wf-btn.ghost { background: transparent; color: var(--ink); border-style: dashed; }
+  .wf-btn.block { width: 100%; }
+  .wf-btn[disabled] { opacity: .35; cursor: not-allowed; }
+  .wf-link { text-decoration: underline; cursor: pointer; }
+  .wf-field { display: flex; flex-direction: column; gap: 4px; }
+  .wf-field label { font-size: 12px; font-weight: 700; }
+  .wf-input { border: 2px solid var(--line); border-radius: var(--radius); padding: 10px; color: var(--ink-3); min-height: 40px; background: var(--paper); }
+  .wf-input.filled { color: var(--ink); }
+  .wf-input.error { border-style: dashed; }
+  .wf-hint { font-size: 11px; color: var(--ink-2); }
+  .wf-hint.error::before { content: "⚠ "; }
+  .wf-select::after { content: " ▾"; float: right; color: var(--ink); }
+  .wf-check, .wf-radio { display: flex; align-items: center; gap: 8px; }
+  .wf-check::before, .wf-radio::before { content: ""; width: 16px; height: 16px; border: 2px solid var(--line); border-radius: 3px; flex: none; }
+  .wf-radio::before { border-radius: 50%; }
+  .wf-check.on::before { background: var(--ink); box-shadow: inset 0 0 0 3px #fff; }
+  .wf-radio.on::before { background: var(--ink); box-shadow: inset 0 0 0 3px #fff; }
+  .wf-toggle { width: 38px; height: 22px; border: 2px solid var(--line); border-radius: 11px; position: relative; flex: none; }
+  .wf-toggle::after { content: ""; position: absolute; width: 14px; height: 14px; border-radius: 50%; background: var(--ink); top: 2px; left: 2px; }
+  .wf-toggle.on::after { left: 18px; }
+  .wf-stepper { display: inline-flex; border: 2px solid var(--line); border-radius: var(--radius); }
+  .wf-stepper > * { padding: 4px 10px; border-right: 2px solid var(--line); }
+  .wf-stepper > *:last-child { border-right: 0; }
+  .wf-tabs { display: flex; border-bottom: 2px solid var(--line); }
+  .wf-tabs > * { padding: 8px 12px; color: var(--ink-2); }
+  .wf-tabs .on { color: var(--ink); font-weight: 700; border-bottom: 3px solid var(--ink); margin-bottom: -2px; }
+  .wf-badge { display: inline-block; font-size: 11px; border: 1.5px solid var(--line); border-radius: 999px; padding: 1px 8px; }
+  .wf-divider { border: 0; border-top: 1px dashed var(--ink-3); margin: 4px 0; width: 100%; }
+  .wf-progress { height: 8px; border: 2px solid var(--line); border-radius: 6px; overflow: hidden; }
+  .wf-progress > i { display: block; height: 100%; background: var(--ink); }
+  .wf-steps { display: flex; gap: 6px; font-size: 11px; }
+  .wf-steps > * { flex: 1; border-top: 4px solid var(--fill-2); padding-top: 4px; color: var(--ink-2); }
+  .wf-steps .done, .wf-steps .on { border-color: var(--ink); color: var(--ink); }
+  .wf-steps .on { font-weight: 700; }
+  .wf-table { width: 100%; border-collapse: collapse; border: 2px solid var(--line); }
+  .wf-table th, .wf-table td { border-bottom: 1px dashed var(--ink-3); padding: 8px; text-align: left; font-size: 13px; }
+  .wf-table th { border-bottom: 2px solid var(--line); }
+  .wf-banner { border: 2px dashed var(--line); border-radius: var(--radius); padding: 10px 12px; display: flex; gap: 8px; align-items: flex-start; }
+  .wf-banner::before { content: "ⓘ"; }
+  .wf-banner.error::before { content: "⚠"; }
+  .wf-banner.success::before { content: "✓"; }
+  .wf-empty { border: 2px dashed var(--ink-3); border-radius: var(--radius); padding: 28px 16px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; color: var(--ink-2); }
+  .wf-skeleton { background: repeating-linear-gradient(90deg, var(--fill) 0 40%, var(--fill-2) 50%, var(--fill) 60% 100%); background-size: 200% 100%; animation: sk 1.4s linear infinite; border-radius: var(--radius); min-height: 14px; }
+  @keyframes sk { to { background-position: -200% 0; } }
+  @media (prefers-reduced-motion: reduce) { .wf-skeleton { animation: none; } }
+  .wf-sheet { margin-top: auto; border-top: 2px solid var(--line); border-radius: 16px 16px 0 0; padding: 14px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 -8px 0 rgba(0,0,0,.05); }
+  .wf-sheet::before { content: ""; width: 40px; height: 4px; background: var(--ink-3); border-radius: 2px; align-self: center; }
+  .wf-modal-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,.25); display: grid; place-items: center; padding: 20px; z-index: 5; }
+  .wf-modal { background: var(--paper); border: 2px solid var(--line); border-radius: var(--radius); padding: 16px; width: 100%; max-width: 360px; display: flex; flex-direction: column; gap: 10px; }
+  .wf-toast { position: absolute; left: 50%; bottom: 80px; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 8px 14px; border-radius: 999px; font-size: 12px; white-space: nowrap; z-index: 6; }
+  .wf-chat { display: flex; flex-direction: column; gap: 6px; }
+  .wf-bubble { max-width: 80%; border: 2px solid var(--line); border-radius: 12px 12px 12px 2px; padding: 8px 10px; align-self: flex-start; }
+  .wf-bubble.me { align-self: flex-end; border-radius: 12px 12px 2px 12px; background: var(--fill); }
+  .wf-fab { position: absolute; right: 16px; bottom: 76px; width: 52px; height: 52px; border-radius: 50%; border: 2px solid var(--line); background: var(--ink); color: #fff; display: grid; place-items: center; font-size: 22px; z-index: 4; }
+
+  /* ---------- interaction & annotation overlays ---------- */
+  [data-go] { cursor: pointer; }
+  .show-hot [data-go] { outline: 2px solid #f5b700; outline-offset: 2px; background-image: linear-gradient(var(--hot), var(--hot)); }
+  .flash [data-go] { animation: flash .6s ease 2; }
+  @keyframes flash { 50% { outline: 3px solid #f5b700; outline-offset: 2px; } }
+  .note { display: none; }
+  .show-notes .note { display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; background: #e54b4b; color: #fff; font: 700 10px/1 system-ui, sans-serif; vertical-align: top; margin-left: 4px; }
+  .show-notes .note::before { content: attr(data-n); }
+
+  @media (max-width: 1100px) {
+    .app { grid-template-columns: 1fr; height: auto; }
+    .side, .panel { border: 0; border-bottom: 1px solid #ddd; }
+    .stage { padding: 16px; }
+    .device { width: 100%; max-width: 390px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <h1>B2B WhatsApp Order</h1>
+    <div class="sub">Lo-fi wireframe · product-trio</div>
+    <div class="toolbar" role="group" aria-label="View options">
+      <button id="vp-mobile" aria-pressed="true">Mobile</button>
+      <button id="vp-desktop" aria-pressed="false">Desktop</button>
+      <button id="t-hot" aria-pressed="false" title="Show clickable areas (H)">Hotspots</button>
+      <button id="t-notes" aria-pressed="true" title="Show annotation markers (N)">Notes</button>
+    </div>
+    <h2>Flow</h2>
+    <select id="flow-select" aria-label="User flow"></select>
+    <h2>Screens</h2>
+    <ul class="scr-list" id="scr-list"></ul>
+  </aside>
+
+  <main class="stage">
+    <div class="crumbs" id="crumbs"></div>
+    <div class="device" id="device"></div>
+    <div class="flow-nav">
+      <button id="prev">← Prev in flow</button>
+      <button id="next">Next in flow →</button>
+    </div>
+  </main>
+
+  <aside class="panel">
+    <h2>Screen</h2>
+    <div id="p-title" class="wf-h2" style="font-size:15px"></div>
+    <h2>Traceability</h2>
+    <div id="p-trace"></div>
+    <h2>Annotations</h2>
+    <div id="p-notes"></div>
+    <h2>Navigates to</h2>
+    <div id="p-links"></div>
+  </aside>
+</div>
+
+<!-- ===================== SCREENS (edit below) ===================== -->
+<div id="screens">
+  <!-- ================= BUYER: WhatsApp chat + Flow (mobile) ================= -->
+  <section class="screen" data-id="S-01" data-title="Chat: ask to order" data-stories="US-01" data-bpmn="E-01, T-01">
+    <div class="wf-status"><span>9:41</span><span>▮▮▮</span></div>
+    <div class="wf-appbar"><span class="wf-icon">‹</span><span class="wf-avatar"></span><span class="grow">Acme Tea<div class="wf-muted">Business account</div></span></div>
+    <div class="body">
+      <div class="wf-chat">
+        <div class="wf-bubble me">order<span class="note" data-n="1"></span></div>
+        <div class="wf-bubble">Halo Kopi Senja! Silakan isi form order B2B. Ongkir langsung terhitung di form.
+          <hr class="wf-divider"><div class="wf-link" data-go="S-02" style="text-align:center;font-weight:700">☰ Order Sekarang<span class="note" data-n="2"></span></div>
+        </div>
+      </div>
+      <div class="wf-muted" style="text-align:center">Form berlaku 3 hari</div>
+      <div class="wf-row" style="justify-content:center;gap:16px">
+        <span class="wf-link wf-muted" data-go="S-06-expired">Demo: buka form &gt; 3 hari</span>
+        <span class="wf-link wf-muted" data-go="S-09">Demo: WA tidak bisa buka form</span>
+      </div>
+    </div>
+    <div class="wf-row" style="padding:10px;border-top:2px solid var(--line)"><div class="wf-input" style="flex:1">Ketik pesan</div><span class="wf-icon">➤</span></div>
+    <ol class="notes">
+      <li>Keyword "order" (case-insensitive) triggers T-01. Sales can also send the same form from admin (S-11).</li>
+      <li>Flow CTA. Sent as free service message inside 24h, else template <code>b2b_form_order</code> (BR-01). Event <code>order_form_sent</code>.</li>
+    </ol>
+  </section>
+
+  <section class="screen" data-id="S-02" data-title="Form 1/5: Products" data-stories="US-02" data-bpmn="E-02">
+    <div class="wf-status"><span>9:41</span><span>▮▮▮</span></div>
+    <div class="wf-appbar"><span class="wf-icon" data-go="S-01">✕</span><span class="grow">Order B2B Acme Tea</span></div>
+    <div class="body">
+      <div class="wf-steps"><span class="on">Produk</span><span>Usaha</span><span>Alamat</span><span>Kurir</span><span>Ringkasan</span></div>
+      <p class="wf-h2">Pilih produk</p>
+      <div class="wf-list">
+        <div><div class="wf-img" style="min-height:44px;width:44px"></div><div style="flex:1">Ceremonial 100g<div class="wf-muted">Rp 185.000</div></div><div class="wf-stepper"><span>−</span><span>2</span><span>+</span></div></div>
+        <div><div class="wf-img" style="min-height:44px;width:44px"></div><div style="flex:1">Culinary 1kg<div class="wf-muted">Rp 1.150.000</div></div><div class="wf-stepper"><span>−</span><span>1</span><span>+</span></div></div>
+        <div><div class="wf-img" style="min-height:44px;width:44px"></div><div style="flex:1">Hojicha 500g<div class="wf-muted">Rp 420.000</div></div><div class="wf-stepper"><span>−</span><span>0</span><span>+</span></div></div>
+      </div>
+      <div class="wf-row between"><span>Subtotal (estimasi)<span class="note" data-n="1"></span></span><b>Rp 1.520.000</b></div>
+    </div>
+    <div style="padding:12px;border-top:2px solid var(--line)"><button class="wf-btn block" data-go="S-03">Lanjut<span class="note" data-n="2"></span></button></div>
+    <ol class="notes">
+      <li>Website prices shown as estimate; final total is recalculated on the server (BR-03).</li>
+      <li>Disabled until at least one quantity &gt; 0 (US-02).</li>
+    </ol>
+  </section>
+
+  <section class="screen" data-id="S-03" data-title="Form 2/5: Business data" data-stories="US-03" data-bpmn="E-02">
+    <div class="wf-status"><span>9:41</span><span>▮▮▮</span></div>
+    <div class="wf-appbar"><span class="wf-icon" data-go="back">‹</span><span class="grow">Order B2B Acme Tea</span></div>
+    <div class="body">
+      <div class="wf-steps"><span class="done">Produk</span><span class="on">Usaha</span><span>Alamat</span><span>Kurir</span><span>Ringkasan</span></div>
+      <div class="wf-field"><label>Nama coffee shop</label><div class="wf-input filled">Kopi Senja</div></div>
+      <div class="wf-field"><label>Nama PIC</label><div class="wf-input filled">Rina</div></div>
+      <div class="wf-row between"><span>Butuh faktur pajak<span class="note" data-n="1"></span></span><span class="wf-toggle on"></span></div>
+      <div class="wf-field"><label>NPWP</label><div class="wf-input">00.000.000.0-000.000</div></div>
+    </div>
+    <div style="padding:12px;border-top:2px solid var(--line)"><button class="wf-btn block" data-go="S-04">Lanjut</button></div>
+    <ol class="notes">
+      <li>NPWP field only appears and becomes required when the toggle is on (BR-04). Prefill from the last order (Later: B-04).</li>
+    </ol>
+  </section>
+
+  <section class="screen" data-id="S-04" data-title="Form 3/5: Address" data-stories="US-04" data-bpmn="E-02">
+    <div class="wf-status"><span>9:41</span><span>▮▮▮</span></div>
+    <div class="wf-appbar"><span class="wf-icon" data-go="back">‹</span><span class="grow">Order B2B Acme Tea</span></div>
+    <div class="body">
+      <div class="wf-steps"><span class="done">Produk</span><span class="done">Usaha</span><span class="on">Alamat</span><span>Kurir</span><span>Ringkasan</span></div>
+      <div class="wf-field"><label>Alamat lengkap</label><div class="wf-input filled" style="min-height:64px">Jl. Braga No. 10</div></div>
+      <div class="wf-field"><label>Kode pos</label><div class="wf-input filled">40111</div></div>
+      <div class="wf-field"><label>Kelurahan<span class="note" data-n="1"></span></label><div class="wf-input filled wf-select">Braga, Sumur Bandung</div></div>
+      <span class="wf-link wf-muted" data-go="S-04-error">Demo: kode pos tidak ditemukan</span>
+    </div>
+    <div style="padding:12px;border-top:2px solid var(--line)"><button class="wf-btn block" data-go="S-05">Lanjut</button></div>
+    <ol class="notes"><li>Options load from the postal code (UC-01 step 5).</li></ol>
+  </section>
+
+  <section class="screen" data-id="S-04-error" data-title="Form 3/5: Postal code not found" data-state="error" data-stories="US-04" data-bpmn="E-02">
+    <div class="wf-status"><span>9:41</span><span>▮▮▮</span></div>
+    <div class="wf-appbar"><span class="wf-icon" data-go="back">‹</span><span class="grow">Order B2B Acme Tea</span></div>
+    <div class="body">
+      <div class="wf-steps"><span class="done">Produk</span><span class="done">Usaha</span><span class="on">Alamat</span><span>Kurir</span><span>Ringkasan</span></div>
+      <div class="wf-field"><label>Kode pos</label><div class="wf-input filled error">40999</div><div class="wf-hint error">Kode pos tidak ditemukan. Cari kelurahan dengan nama.</div></div>
+      <div class="wf-field"><label>Cari kelurahan<span class="note" data-n="1"></span></label><div class="wf-input">Ketik nama kelurahan</div></div>
+    </div>
+    <div style="padding:12px;border-top:2px solid var(--line)"><button class="wf-btn block" data-go="S-04">Pilih kelurahan</button></div>
+    <ol class="notes"><li>UC-01 extension 5a: recovery by name search instead of blocking.</li></ol>
+  </section>
+
+  <section class="screen" data-id="S-05" data-title="Form 4/5: Courier" data-stories="US-05" data-bpmn="E-02, T-02">
+    <div class="wf-status"><span>9:41</span><span>▮▮▮</span></div>
+    <div class="wf-appbar"><span class="wf-icon" data-go="back">‹</span><span class="grow">Order B2B Acme Tea</span></div>
+    <div class="body">
+      <div class="wf-steps"><span class="done">Produk</span><span class="done">Usaha</span><span class="done">Alamat</span><span class="on">Kurir</span><span>Ringkasan</span></div>
+      <p class="wf-h2">Pilih kurir<span class="note" data-n="1"></span></p>
+      <div class="wf-list">
+        <div class="wf-radio on" style="display:flex">JNE REG<span class="wf-muted" style="margin-left:auto">Rp 18.000 · 1-2 hari</span></div>
+        <div class="wf-radio" style="display:flex">JNE YES<span class="wf-muted" style="margin-left:auto">Rp 32.000 · 1 hari</span></div>
+        <div class="wf-radio" style="display:flex">J&amp;T EZ<span class="wf-muted" style="margin-left:auto">Rp 17.000 · 2-3 hari</span></div>
+      </div>
+      <div class="wf-banner">Jika ongkir gagal dimuat: "Ongkir akan dihitung admin" dan kamu tetap bisa lanjut.<span class="note" data-n="2"></span></div>
+    </div>
+    <div style="padding:12px;border-top:2px solid var(--line)"><button class="wf-btn block" data-go="S-06">Lanjut</button></div>
+    <ol class="notes">
+      <li>Rates from RajaOngkir via the Flow data endpoint (message flow T-02 to P-RajaOngkir).</li>
+      <li>UC-01 extension 6a, shown here as a note rather than a separate screen.</li>
+    </ol>
+  </section>
+
+  <section class="screen" data-id="S-06" data-title="Form 5/5: Summary" data-stories="US-06" data-bpmn="T-02, T-03">
+    <div class="wf-status"><span>9:41</span><span>▮▮▮</span></div>
+    <div class="wf-appbar"><span class="wf-icon" data-go="back">‹</span><span class="grow">Order B2B Acme Tea</span></div>
+    <div class="body">
+      <div class="wf-steps"><span class="done">Produk</span><span class="done">Usaha</span><span class="done">Alamat</span><span class="done">Kurir</span><span class="on">Ringkasan</span></div>
+      <div class="wf-card">
+        <div class="wf-row between"><span>Ceremonial 100g × 2</span><span>Rp 370.000</span></div>
+        <div class="wf-row between"><span>Culinary 1kg × 1</span><span>Rp 1.150.000</span></div>
+        <div class="wf-row between"><span>Ongkir JNE REG</span><span>Rp 18.000</span></div>
+        <hr class="wf-divider">
+        <div class="wf-row between"><b>Estimasi total</b><b>Rp 1.538.000</b></div>
+      </div>
+      <div class="wf-card"><b>Kopi Senja · Rina</b><span class="wf-muted">Jl. Braga No. 10, Braga, Sumur Bandung 40111 · Faktur pajak: Ya</span><span class="wf-link" data-go="S-03">Ubah</span></div>
+    </div>
+    <div style="padding:12px;border-top:2px solid var(--line)"><button class="wf-btn block" data-go="S-07">Kirim Order<span class="note" data-n="1"></span></button></div>
+    <ol class="notes"><li>Submits E-02; server recalculates (T-02) and saves (T-03). Events <code>order_form_submitted</code>, <code>order_created</code>.</li></ol>
+  </section>
+
+  <section class="screen" data-id="S-06-expired" data-title="Form expired" data-state="error" data-stories="US-07" data-bpmn="E-03, E-09">
+    <div class="wf-status"><span>9:41</span><span>▮▮▮</span></div>
+    <div class="wf-appbar"><span class="wf-icon" data-go="S-01">✕</span><span class="grow">Order B2B Acme Tea</span></div>
+    <div class="body">
+      <div class="wf-empty">
+        <span class="wf-icon">⏱</span>
+        <b>Form kedaluwarsa</b>
+        <span>Form ini sudah lebih dari 3 hari. Ketik <b>order</b> di chat untuk form baru.<span class="note" data-n="1"></span></span>
+        <button class="wf-btn secondary" data-go="S-01">Kembali ke chat</button>
+      </div>
+    </div>
+    <ol class="notes"><li>BR-02 flow_token valid 3 days. Ends in E-09 Order abandoned.</li></ol>
+  </section>
+
+  <section class="screen" data-id="S-07" data-title="Chat: summary, invoice, I have paid" data-stories="US-06, US-10, US-12" data-bpmn="T-03, T-05, E-04">
+    <div class="wf-status"><span>9:41</span><span>▮▮▮</span></div>
+    <div class="wf-appbar"><span class="wf-icon">‹</span><span class="wf-avatar"></span><span class="grow">Acme Tea</span></div>
+    <div class="body">
+      <div class="wf-chat">
+        <div class="wf-bubble">✅ Order <b>ATB-2611-014</b> diterima. Ceremonial 100g ×2, Culinary 1kg ×1. Estimasi total Rp 1.538.000.<span class="note" data-n="1"></span></div>
+        <div class="wf-bubble">Halo Kopi Senja, ini invoice untuk order ATB-2611-014. No. invoice: INV/2611/031. Total: Rp 1.538.000. Bayar lewat link: jurnal.id/…
+          <hr class="wf-divider"><div class="wf-link" data-go="S-07-claimed" style="text-align:center;font-weight:700">Saya sudah bayar<span class="note" data-n="2"></span></div>
+        </div>
+      </div>
+    </div>
+    <ol class="notes">
+      <li>Summary only sent when free (BR-01).</li>
+      <li>Quick-reply button; tapping opens a new free 24h window, so the next messages are usually free. Event <code>payment_claimed</code>.</li>
+    </ol>
+  </section>
+
+  <section class="screen" data-id="S-07-claimed" data-title="Chat: payment claimed" data-state="success" data-stories="US-12" data-bpmn="E-04">
+    <div class="wf-status"><span>9:41</span><span>▮▮▮</span></div>
+    <div class="wf-appbar"><span class="wf-icon">‹</span><span class="wf-avatar"></span><span class="grow">Acme Tea</span></div>
+    <div class="body">
+      <div class="wf-chat">
+        <div class="wf-bubble me">Saya sudah bayar</div>
+        <div class="wf-bubble">Terima kasih, kami cek pembayarannya dulu ya 🙏</div>
+      </div>
+      <span class="wf-link wf-muted" data-go="S-08">Demo: lanjut setelah admin tandai lunas dan dikirim →</span>
+    </div>
+    <ol class="notes"></ol>
+  </section>
+
+  <section class="screen" data-id="S-08" data-title="Chat: paid and shipped" data-state="success" data-stories="US-13, US-15" data-bpmn="T-08, T-11, E-10">
+    <div class="wf-status"><span>9:41</span><span>▮▮▮</span></div>
+    <div class="wf-appbar"><span class="wf-icon">‹</span><span class="wf-avatar"></span><span class="grow">Acme Tea</span></div>
+    <div class="body">
+      <div class="wf-chat">
+        <div class="wf-bubble">Terima kasih Kopi Senja, pembayaran order ATB-2611-014 sudah kami terima. Pesanan sedang disiapkan.</div>
+        <div class="wf-bubble">Order ATB-2611-014 sudah dikirim. Kurir: JNE REG. No. resi: JNE1234567890.<span class="note" data-n="1"></span></div>
+      </div>
+      <button class="wf-btn secondary" data-go="S-01">Order lagi</button>
+    </div>
+    <ol class="notes"><li>End state E-10 Order shipped. Event <code>order_shipped</code>. "Order lagi" restarts the flow (repeat, M-05).</li></ol>
+  </section>
+
+  <section class="screen" data-id="S-09" data-title="Web Link Order (fallback)" data-stories="US-08" data-bpmn="E-02">
+    <div class="wf-status"><span>9:41</span><span>▮▮▮</span></div>
+    <div class="wf-appbar"><span class="grow">acmetea.example/b2b</span></div>
+    <div class="body">
+      <p class="wf-h1">Order B2B</p>
+      <div class="wf-banner">Form web untuk WhatsApp yang belum bisa membuka form di dalam chat.<span class="note" data-n="1"></span></div>
+      <div class="wf-split">
+        <div class="wf-col"><p class="wf-h2">Produk</p><div class="wf-lines"><i></i></div><p class="wf-h2">Data usaha</p><div class="wf-input">Nama coffee shop</div><div class="wf-input">Nama PIC</div></div>
+        <div class="wf-col"><p class="wf-h2">Alamat &amp; kurir</p><div class="wf-input">Kode pos</div><div class="wf-input wf-select">Kurir</div><div class="wf-card"><div class="wf-row between"><b>Estimasi total</b><b>Rp —</b></div></div></div>
+      </div>
+      <button class="wf-btn block" data-go="S-07">Kirim Order</button>
+    </div>
+    <ol class="notes"><li>Same steps as the Flow on one page; saves to the same orders table, channel <code>b2b_wa</code> (UC-01 2b).</li></ol>
+  </section>
+
+  <!-- ================= ADMIN (desktop) ================= -->
+  <section class="screen" data-id="S-10" data-title="Admin: B2B orders" data-stories="US-09, US-14" data-bpmn="T-04, G-02">
+    <div class="wf-appbar"><span class="grow">Acme Tea Admin</span><span class="wf-avatar"></span></div>
+    <div class="wf-row" style="align-items:stretch;flex:1">
+      <nav class="wf-sidebar"><b>Order B2B</b><span class="wf-muted">Order web</span><span class="wf-muted">Produk</span><span class="wf-muted">Pengaturan</span></nav>
+      <div class="body">
+        <div class="wf-row between"><p class="wf-h1">Order B2B</p><button class="wf-btn secondary">📲 Kirim Form Order</button></div>
+        <div class="wf-tabs"><span class="on">Baru (2)</span><span>Invoice (3)</span><span>Perlu follow up (1)<span class="note" data-n="2"></span></span><span>Lunas (1)</span><span>Dikirim</span></div>
+        <table class="wf-table">
+          <tr><th>Order</th><th>Coffee shop</th><th>Total</th><th>Masuk</th><th>Status</th></tr>
+          <tr data-go="S-11"><td>ATB-2611-014</td><td>Kopi Senja</td><td>Rp 1.538.000</td><td>10 menit lalu</td><td><span class="wf-badge">Baru</span></td></tr>
+          <tr><td>ATB-2611-009</td><td>Ruang Teh</td><td>Rp 920.000</td><td><b>26 jam lalu ⚠</b><span class="note" data-n="1"></span></td><td><span class="wf-badge">Baru</span></td></tr>
+        </table>
+        <span class="wf-link wf-muted" data-go="S-10-empty">Demo: belum ada order</span>
+      </div>
+    </div>
+    <ol class="notes">
+      <li>Orders &gt; 24h without invoice are highlighted (guardrail G-02: no dropped orders).</li>
+      <li>Invoices unpaid &gt; 2 days (E-05) with an "Ingatkan" button per row (US-14, R2).</li>
+    </ol>
+  </section>
+
+  <section class="screen" data-id="S-10-empty" data-title="Admin: no orders yet" data-state="empty" data-stories="US-09" data-bpmn="">
+    <div class="wf-appbar"><span class="grow">Acme Tea Admin</span><span class="wf-avatar"></span></div>
+    <div class="wf-row" style="align-items:stretch;flex:1">
+      <nav class="wf-sidebar"><b>Order B2B</b><span class="wf-muted">Order web</span><span class="wf-muted">Produk</span></nav>
+      <div class="body">
+        <p class="wf-h1">Order B2B</p>
+        <div class="wf-empty"><b>Belum ada order B2B</b><span>Kirim form order ke coffee shop partner untuk mulai.</span><button class="wf-btn" data-go="S-10">📲 Kirim Form Order</button></div>
+      </div>
+    </div>
+    <ol class="notes"></ol>
+  </section>
+
+  <section class="screen" data-id="S-11" data-title="Admin: order detail" data-stories="US-10, US-13, US-15" data-bpmn="T-04, T-05, T-06, T-08, T-10">
+    <div class="wf-appbar"><span class="wf-icon" data-go="S-10">‹</span><span class="grow">ATB-2611-014 · Kopi Senja</span><span class="wf-badge">Baru</span></div>
+    <div class="body">
+      <div class="wf-split">
+        <div class="wf-col">
+          <div class="wf-card"><b>Item</b><div class="wf-row between"><span>Ceremonial 100g × 2</span><span>Rp 370.000</span></div><div class="wf-row between"><span>Culinary 1kg × 1</span><span>Rp 1.150.000</span></div><div class="wf-row between"><span>Ongkir JNE REG</span><span>Rp 18.000</span></div><hr class="wf-divider"><div class="wf-row between"><b>Total server</b><b>Rp 1.538.000</b></div></div>
+          <div class="wf-card"><b>Pengiriman</b><span class="wf-muted">Rina · 0812-xxxx · Jl. Braga No. 10, 40111 · Faktur pajak: Ya</span></div>
+        </div>
+        <div class="wf-col">
+          <div class="wf-card"><b>Aksi<span class="note" data-n="1"></span></b>
+            <button class="wf-btn block" data-go="S-12">🧾 Kirim Invoice</button>
+            <button class="wf-btn secondary block" data-go="S-13">✅ Tandai Lunas</button>
+            <button class="wf-btn secondary block" data-go="S-14">📦 Tandai Dikirim</button>
+          </div>
+          <div class="wf-card"><b>Riwayat</b><span class="wf-muted">10:02 Order masuk (form WA)<br>10:02 Ringkasan terkirim · gratis<span class="note" data-n="2"></span></span></div>
+        </div>
+      </div>
+    </div>
+    <ol class="notes">
+      <li>Only the action valid for the current status is primary; others disabled with a reason (new: invoice; invoiced: paid; paid: shipped).</li>
+      <li>Timeline shows each WA message and whether it was free (service) or paid (template) for G-01 visibility.</li>
+    </ol>
+  </section>
+
+  <section class="screen" data-id="S-12" data-title="Admin: send invoice" data-stories="US-10, US-11" data-bpmn="T-04, T-05">
+    <div class="wf-appbar"><span class="grow">ATB-2611-014 · Kopi Senja</span></div>
+    <div class="body"><div class="wf-lines"><i></i><i></i></div><div class="wf-lines"><i></i></div></div>
+    <div class="wf-modal-backdrop">
+      <div class="wf-modal">
+        <p class="wf-h2">Kirim invoice</p>
+        <div class="wf-field"><label>No. invoice Jurnal.id</label><div class="wf-input filled">INV/2611/031</div></div>
+        <div class="wf-field"><label>Link pembayaran</label><div class="wf-input filled">https://jurnal.id/…</div></div>
+        <div class="wf-field"><label>Total final</label><div class="wf-input filled">Rp 1.538.000</div><div class="wf-hint">Sama dengan total server.<span class="note" data-n="1"></span></div></div>
+        <div class="wf-muted">Dikirim sebagai pesan gratis (customer chat 3 jam lalu).<span class="note" data-n="2"></span></div>
+        <div class="wf-row"><button class="wf-btn secondary" data-go="S-11">Batal</button><button class="wf-btn" style="flex:1" data-go="S-07">Kirim Invoice</button></div>
+      </div>
+    </div>
+    <ol class="notes">
+      <li>UC-02 3a: if the total differs from the server total, show the difference and ask to confirm.</li>
+      <li>BR-01 made visible: admin sees free vs paid before sending (US-11). Failure keeps status new with "Coba lagi" (4a).</li>
+    </ol>
+  </section>
+
+  <section class="screen" data-id="S-13" data-title="Admin: mark paid" data-stories="US-13" data-bpmn="T-06, G-04, T-08">
+    <div class="wf-appbar"><span class="grow">ATB-2611-014 · Kopi Senja</span><span class="wf-badge">Klaim bayar</span></div>
+    <div class="body"><div class="wf-lines"><i></i><i></i></div></div>
+    <div class="wf-modal-backdrop">
+      <div class="wf-modal">
+        <p class="wf-h2">Tandai lunas?</p>
+        <span>Pastikan mutasi rekening sebesar <b>Rp 1.538.000</b> sudah masuk.<span class="note" data-n="1"></span></span>
+        <div class="wf-check on">Nominal sesuai invoice</div>
+        <div class="wf-row"><button class="wf-btn ghost" data-go="S-11">Nominal tidak sesuai</button><button class="wf-btn" style="flex:1" data-go="S-11">Tandai Lunas</button></div>
+      </div>
+    </div>
+    <ol class="notes"><li>G-04 Payment matches invoice? Yes sends confirmation and notifies Order team (T-08); "Nominal tidak sesuai" opens a follow-up message (T-07, BR-05).</li></ol>
+  </section>
+
+  <section class="screen" data-id="S-14" data-title="Admin: mark shipped" data-stories="US-15" data-bpmn="T-10, T-11">
+    <div class="wf-appbar"><span class="grow">ATB-2611-014 · Kopi Senja</span><span class="wf-badge">Lunas</span></div>
+    <div class="body"><div class="wf-lines"><i></i><i></i></div></div>
+    <div class="wf-modal-backdrop">
+      <div class="wf-modal">
+        <p class="wf-h2">Tandai dikirim</p>
+        <div class="wf-field"><label>Kurir</label><div class="wf-input filled wf-select">JNE REG</div></div>
+        <div class="wf-field"><label>No. resi</label><div class="wf-input filled">JNE1234567890</div><div class="wf-hint">Format dicek sesuai kurir.<span class="note" data-n="1"></span></div></div>
+        <div class="wf-row"><button class="wf-btn secondary" data-go="S-11">Batal</button><button class="wf-btn" style="flex:1" data-go="S-08">Simpan &amp; kirim resi</button></div>
+      </div>
+    </div>
+    <ol class="notes"><li>UC-04 3a inline validation. Sends tracking (T-11) and ends at E-10. Event <code>order_shipped</code>.</li></ol>
+  </section>
+
+</div>
+<!-- =================== END SCREENS =================== -->
+
+<script>
+/* ---- edit: named user flows (ordered screen ids). First flow is the default. ---- */
+const FLOWS = [
+  { name: "Buyer: happy path", screens: ["S-01", "S-02", "S-03", "S-04", "S-05", "S-06", "S-07", "S-07-claimed", "S-08"] },
+  { name: "Admin: invoice to shipped", screens: ["S-10", "S-11", "S-12", "S-13", "S-14"] },
+  { name: "Exceptions", screens: ["S-04-error", "S-06-expired", "S-09", "S-10-empty"] }
+];
+
+/* ---------------- engine (no edits needed) ---------------- */
+(function () {
+  const $ = (s, r = document) => r.querySelector(s);
+  const src = [...document.querySelectorAll('#screens > .screen')];
+  const byId = Object.fromEntries(src.map(s => [s.dataset.id, s]));
+  const device = $('#device');
+  const store = {
+    get(k, d) { try { return localStorage.getItem('wf:' + k) ?? d; } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem('wf:' + k, v); } catch (e) {} }
+  };
+  let flowIdx = 0, history = [], current = null;
+
+  const flows = FLOWS.length ? FLOWS : [{ name: 'All screens', screens: src.map(s => s.dataset.id) }];
+  if (!FLOWS.some(f => f.name === 'All screens')) flows.push({ name: 'All screens', screens: src.map(s => s.dataset.id) });
+  flows.forEach((f, i) => $('#flow-select').add(new Option(f.name + ' (' + f.screens.length + ')', i)));
+
+  function list() {
+    const ul = $('#scr-list'); ul.innerHTML = '';
+    src.forEach(s => {
+      const li = document.createElement('li'), b = document.createElement('button');
+      const st = s.dataset.state && s.dataset.state !== 'default' ? '<span class="st">' + s.dataset.state + '</span>' : '';
+      b.innerHTML = '<span class="sid">' + s.dataset.id + '</span><span>' + (s.dataset.title || '') + '</span>' + st;
+      b.onclick = () => go(s.dataset.id);
+      b.setAttribute('aria-current', s.dataset.id === current);
+      li.appendChild(b); ul.appendChild(li);
+    });
+  }
+
+  function chips(label, csv) {
+    if (!csv) return '';
+    return '<div class="meta-row"><span class="wf-muted" style="width:52px">' + label + '</span>' +
+      csv.split(',').map(x => '<span class="chip">' + x.trim() + '</span>').join('') + '</div>';
+  }
+
+  function go(id, push = true) {
+    if (id === 'back') { history.pop(); id = history.pop() || flows[flowIdx].screens[0]; }
+    const s = byId[id];
+    if (!s) { device.innerHTML = '<div class="body"><div class="wf-empty">Missing screen ' + id + '</div></div>'; return; }
+    if (push) history.push(id);
+    current = id;
+    device.innerHTML = '';
+    const clone = s.cloneNode(true);
+    device.appendChild(clone);
+    device.scrollTop = 0;
+    clone.querySelectorAll('[data-go]').forEach(el => el.addEventListener('click', e => { e.preventDefault(); go(el.dataset.go); }));
+    clone.addEventListener('click', e => {
+      if (!e.target.closest('[data-go]')) { device.classList.remove('flash'); void device.offsetWidth; device.classList.add('flash'); }
+    });
+    $('#p-title').textContent = id + ' · ' + (s.dataset.title || '');
+    $('#p-trace').innerHTML = (chips('Stories', s.dataset.stories) + chips('BPMN', s.dataset.bpmn) + chips('State', s.dataset.state)) || '<div class="empty">No trace ids</div>';
+    const notes = s.querySelector('ol.notes');
+    $('#p-notes').innerHTML = notes && notes.children.length ? '<ol>' + notes.innerHTML + '</ol>' : '<div class="empty">No annotations</div>';
+    const targets = [...new Set([...s.querySelectorAll('[data-go]')].map(e => e.dataset.go))];
+    $('#p-links').innerHTML = targets.length ? targets.map(t => '<span class="chip wf-link" data-jump="' + t + '">' + t + (byId[t] ? ' ' + byId[t].dataset.title : '') + '</span>').join(' ') : '<div class="empty">Dead end</div>';
+    $('#p-links').querySelectorAll('[data-jump]').forEach(c => c.onclick = () => go(c.dataset.jump));
+    const f = flows[flowIdx].screens, i = f.indexOf(id);
+    $('#crumbs').innerHTML = '<span class="tag">' + id + '</span><span>' + (s.dataset.title || '') + '</span>' +
+      (i >= 0 ? '<span>· step ' + (i + 1) + ' of ' + f.length + ' in "' + flows[flowIdx].name + '"</span>' : '<span>· outside current flow</span>');
+    $('#prev').disabled = i <= 0; $('#next').disabled = i < 0 || i >= f.length - 1;
+    if (location.hash.slice(1) !== id) window.history.replaceState(null, '', '#' + id);
+    list();
+  }
+
+  function setVp(mode) {
+    device.classList.toggle('desktop', mode === 'desktop');
+    $('#vp-mobile').setAttribute('aria-pressed', mode !== 'desktop');
+    $('#vp-desktop').setAttribute('aria-pressed', mode === 'desktop');
+    store.set('vp', mode);
+  }
+  function toggle(btn, cls) {
+    const on = btn.getAttribute('aria-pressed') !== 'true';
+    btn.setAttribute('aria-pressed', on); device.classList.toggle(cls, on); store.set(cls, on ? '1' : '0');
+  }
+
+  $('#vp-mobile').onclick = () => setVp('mobile');
+  $('#vp-desktop').onclick = () => setVp('desktop');
+  $('#t-hot').onclick = () => toggle($('#t-hot'), 'show-hot');
+  $('#t-notes').onclick = () => toggle($('#t-notes'), 'show-notes');
+  $('#flow-select').onchange = e => { flowIdx = +e.target.value; history = []; go(flows[flowIdx].screens[0]); };
+  $('#prev').onclick = () => { const f = flows[flowIdx].screens; go(f[f.indexOf(current) - 1]); };
+  $('#next').onclick = () => { const f = flows[flowIdx].screens; go(f[f.indexOf(current) + 1]); };
+  document.addEventListener('keydown', e => {
+    if (e.target.matches('input,textarea,select')) return;
+    if (e.key === 'ArrowRight' && !$('#next').disabled) $('#next').click();
+    if (e.key === 'ArrowLeft' && !$('#prev').disabled) $('#prev').click();
+    if (e.key === 'h') $('#t-hot').click();
+    if (e.key === 'n') $('#t-notes').click();
+  });
+
+  setVp(store.get('vp', 'mobile'));
+  if (store.get('show-hot', '0') === '1') { $('#t-hot').setAttribute('aria-pressed', true); device.classList.add('show-hot'); }
+  if (store.get('show-notes', '1') === '1') { $('#t-notes').setAttribute('aria-pressed', true); device.classList.add('show-notes'); }
+  else $('#t-notes').setAttribute('aria-pressed', false);
+  window.addEventListener('hashchange', () => { const h = decodeURIComponent(location.hash.slice(1)); if (byId[h] && h !== current) go(h); });
+  const start = byId[location.hash.slice(1)] ? location.hash.slice(1) : flows[0].screens[0];
+  go(start);
+})();
+</script>
+</body>
+</html>

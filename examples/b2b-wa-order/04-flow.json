@@ -1,0 +1,339 @@
+{
+  "id": "b2b-wa-order",
+  "name": "B2B order via WhatsApp (to-be)",
+  "description": "Coffee shop orders matcha through a WhatsApp Flow form; Acme Tea invoices via Jurnal.id, confirms payment manually and ships with JNE/J&T. Every customer message uses the cheapest channel (free service message inside the 24h window, paid utility template outside it).",
+  "pool": {
+    "id": "P-AcmeTea",
+    "name": "Acme Tea",
+    "lanes": [
+      {
+        "id": "L-Sales",
+        "name": "Sales admin"
+      },
+      {
+        "id": "L-Order",
+        "name": "Order team"
+      }
+    ]
+  },
+  "externalPools": [
+    {
+      "id": "P-Buyer",
+      "name": "Coffee shop (B2B buyer)",
+      "position": "top"
+    },
+    {
+      "id": "P-RajaOngkir",
+      "name": "RajaOngkir"
+    },
+    {
+      "id": "P-Courier",
+      "name": "Courier (JNE / J&T)"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "E-01",
+      "type": "startEvent",
+      "event": "message",
+      "name": "Order request received",
+      "lane": "L-Sales",
+      "documentation": "Buyer types 'order' in WhatsApp, or Sales admin taps 'Send order form' in admin."
+    },
+    {
+      "id": "T-01",
+      "type": "serviceTask",
+      "name": "Send order form",
+      "lane": "L-Sales"
+    },
+    {
+      "id": "G-01",
+      "type": "eventBasedGateway",
+      "name": "",
+      "lane": "L-Sales"
+    },
+    {
+      "id": "E-02",
+      "type": "intermediateCatchEvent",
+      "event": "message",
+      "name": "Form submitted",
+      "lane": "L-Sales"
+    },
+    {
+      "id": "E-03",
+      "type": "intermediateCatchEvent",
+      "event": "timer",
+      "timer": "P3D",
+      "name": "Form link expired",
+      "lane": "L-Sales"
+    },
+    {
+      "id": "T-02",
+      "type": "serviceTask",
+      "name": "Recalculate price and shipping",
+      "lane": "L-Sales"
+    },
+    {
+      "id": "E-09",
+      "type": "endEvent",
+      "name": "Order abandoned",
+      "lane": "L-Sales"
+    },
+    {
+      "id": "T-03",
+      "type": "serviceTask",
+      "name": "Save order and send summary",
+      "lane": "L-Sales"
+    },
+    {
+      "id": "T-04",
+      "type": "userTask",
+      "name": "Create invoice in Jurnal.id",
+      "lane": "L-Sales"
+    },
+    {
+      "id": "T-05",
+      "type": "sendTask",
+      "name": "Send invoice",
+      "lane": "L-Sales"
+    },
+    {
+      "id": "G-02",
+      "type": "exclusiveGateway",
+      "name": "",
+      "lane": "L-Sales"
+    },
+    {
+      "id": "G-03",
+      "type": "eventBasedGateway",
+      "name": "",
+      "lane": "L-Sales"
+    },
+    {
+      "id": "E-04",
+      "type": "intermediateCatchEvent",
+      "event": "message",
+      "name": "Payment claimed",
+      "lane": "L-Sales"
+    },
+    {
+      "id": "E-05",
+      "type": "intermediateCatchEvent",
+      "event": "timer",
+      "timer": "P2D",
+      "name": "2 days unpaid",
+      "lane": "L-Sales"
+    },
+    {
+      "id": "T-06",
+      "type": "userTask",
+      "name": "Check bank mutation",
+      "lane": "L-Sales"
+    },
+    {
+      "id": "G-04",
+      "type": "exclusiveGateway",
+      "name": "Payment matches invoice?",
+      "lane": "L-Sales"
+    },
+    {
+      "id": "T-08",
+      "type": "userTask",
+      "name": "Mark order paid",
+      "lane": "L-Sales"
+    },
+    {
+      "id": "G-05",
+      "type": "exclusiveGateway",
+      "name": "",
+      "lane": "L-Sales"
+    },
+    {
+      "id": "T-07",
+      "type": "userTask",
+      "name": "Follow up payment",
+      "lane": "L-Sales"
+    },
+    {
+      "id": "T-09",
+      "type": "manualTask",
+      "name": "Pack order",
+      "lane": "L-Order"
+    },
+    {
+      "id": "T-10",
+      "type": "userTask",
+      "name": "Book courier and enter tracking",
+      "lane": "L-Order"
+    },
+    {
+      "id": "T-11",
+      "type": "serviceTask",
+      "name": "Send tracking number",
+      "lane": "L-Order"
+    },
+    {
+      "id": "E-10",
+      "type": "endEvent",
+      "name": "Order shipped",
+      "lane": "L-Order"
+    }
+  ],
+  "flows": [
+    {
+      "from": "E-01",
+      "to": "T-01"
+    },
+    {
+      "from": "T-01",
+      "to": "G-01"
+    },
+    {
+      "from": "G-01",
+      "to": "E-02"
+    },
+    {
+      "from": "G-01",
+      "to": "E-03"
+    },
+    {
+      "from": "E-03",
+      "to": "E-09"
+    },
+    {
+      "from": "E-02",
+      "to": "T-02"
+    },
+    {
+      "from": "T-02",
+      "to": "T-03"
+    },
+    {
+      "from": "T-03",
+      "to": "T-04"
+    },
+    {
+      "from": "T-04",
+      "to": "T-05"
+    },
+    {
+      "from": "T-05",
+      "to": "G-02"
+    },
+    {
+      "from": "G-02",
+      "to": "G-03"
+    },
+    {
+      "from": "G-03",
+      "to": "E-04"
+    },
+    {
+      "from": "G-03",
+      "to": "E-05"
+    },
+    {
+      "from": "E-04",
+      "to": "T-06"
+    },
+    {
+      "from": "T-06",
+      "to": "G-04"
+    },
+    {
+      "from": "G-04",
+      "to": "T-08",
+      "name": "Yes"
+    },
+    {
+      "from": "G-04",
+      "to": "G-05",
+      "name": "No"
+    },
+    {
+      "from": "E-05",
+      "to": "G-05"
+    },
+    {
+      "from": "G-05",
+      "to": "T-07"
+    },
+    {
+      "from": "T-07",
+      "to": "G-02"
+    },
+    {
+      "from": "T-08",
+      "to": "T-09"
+    },
+    {
+      "from": "T-09",
+      "to": "T-10"
+    },
+    {
+      "from": "T-10",
+      "to": "T-11"
+    },
+    {
+      "from": "T-11",
+      "to": "E-10"
+    }
+  ],
+  "messageFlows": [
+    {
+      "from": "P-Buyer",
+      "to": "E-01",
+      "name": "'order' chat"
+    },
+    {
+      "from": "T-01",
+      "to": "P-Buyer",
+      "name": "Order form button"
+    },
+    {
+      "from": "P-Buyer",
+      "to": "E-02",
+      "name": "Completed form"
+    },
+    {
+      "from": "T-02",
+      "to": "P-RajaOngkir",
+      "name": "Rate request"
+    },
+    {
+      "from": "T-03",
+      "to": "P-Buyer",
+      "name": "Order summary"
+    },
+    {
+      "from": "T-05",
+      "to": "P-Buyer",
+      "name": "Invoice + pay link"
+    },
+    {
+      "from": "P-Buyer",
+      "to": "E-04",
+      "name": "'I have paid'"
+    },
+    {
+      "from": "T-07",
+      "to": "P-Buyer",
+      "name": "Payment reminder"
+    },
+    {
+      "from": "T-08",
+      "to": "P-Buyer",
+      "name": "Payment confirmation"
+    },
+    {
+      "from": "T-10",
+      "to": "P-Courier",
+      "name": "Pickup booking"
+    },
+    {
+      "from": "T-11",
+      "to": "P-Buyer",
+      "name": "Tracking number"
+    }
+  ]
+}

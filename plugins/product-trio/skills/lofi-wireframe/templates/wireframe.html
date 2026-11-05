@@ -322,7 +322,7 @@ const FLOWS = [
     $('#crumbs').innerHTML = '<span class="tag">' + id + '</span><span>' + (s.dataset.title || '') + '</span>' +
       (i >= 0 ? '<span>· step ' + (i + 1) + ' of ' + f.length + ' in "' + flows[flowIdx].name + '"</span>' : '<span>· outside current flow</span>');
     $('#prev').disabled = i <= 0; $('#next').disabled = i < 0 || i >= f.length - 1;
-    if (location.hash.slice(1) !== id) history.length && window.history.replaceState(null, '', '#' + id);
+    if (location.hash.slice(1) !== id) window.history.replaceState(null, '', '#' + id);
     list();
   }
 
@@ -356,6 +356,7 @@ const FLOWS = [
   if (store.get('show-hot', '0') === '1') { $('#t-hot').setAttribute('aria-pressed', true); device.classList.add('show-hot'); }
   if (store.get('show-notes', '1') === '1') { $('#t-notes').setAttribute('aria-pressed', true); device.classList.add('show-notes'); }
   else $('#t-notes').setAttribute('aria-pressed', false);
+  window.addEventListener('hashchange', () => { const h = decodeURIComponent(location.hash.slice(1)); if (byId[h] && h !== current) go(h); });
   const start = byId[location.hash.slice(1)] ? location.hash.slice(1) : flows[0].screens[0];
   go(start);
 })();
