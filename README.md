@@ -260,4 +260,4 @@ After changing an example or the templates, refresh the README images with
 
 ## License
 
-[MIT](LICENSE) © 2026 Agung. The example brand "Acme Tea" and all example data are fictional.
+[MIT](LICENSE) © 2026 Agung Mahesa Yudhistira. The example brand "Acme Tea" and all example data are fictional.
