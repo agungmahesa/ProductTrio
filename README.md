@@ -7,6 +7,7 @@
   <img alt="BPMN 2.0" src="https://img.shields.io/badge/BPMN-2.0%20XML-2f6f4f">
   <img alt="7 skills" src="https://img.shields.io/badge/skills-7-555">
   <img alt="Python stdlib only" src="https://img.shields.io/badge/python-3.8%2B%20stdlib-555">
+  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue"></a>
 </p>
 
 **product-trio** gives Claude three product roles - **Business Analyst**, **Product Manager** and
@@ -256,3 +257,7 @@ tools/capture-previews.sh              regenerates docs/images with headless Chr
 
 After changing an example or the templates, refresh the README images with
 `tools/capture-previews.sh`.
+
+## License
+
+[MIT](LICENSE) © 2026 Agung. The example brand "Acme Tea" and all example data are fictional.
