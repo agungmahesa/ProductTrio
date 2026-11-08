@@ -1,0 +1,45 @@
+{
+  "id": "sop-ga-01",
+  "name": "SOP-GA-01 Area Control",
+  "description": "Acme Tea (fictional): daily control of cleanliness and condition of office and unit areas.",
+  "pool": {
+    "id": "P-AcmeTea",
+    "name": "Acme Tea",
+    "lanes": [
+      { "id": "L-GA", "name": "GA staff" },
+      { "id": "L-CS", "name": "Cleaning service" },
+      { "id": "L-ENG", "name": "Engineering team" }
+    ]
+  },
+  "nodes": [
+    { "id": "E-01", "type": "startEvent", "event": "timer", "name": "Control round 08:00 & 14:00", "lane": "L-GA" },
+    { "id": "T-01", "type": "manualTask", "name": "Inspect areas with checklist", "lane": "L-GA" },
+    { "id": "T-02", "type": "userTask", "name": "Record results and photos", "lane": "L-GA" },
+    { "id": "G-01", "type": "inclusiveGateway", "name": "Any findings?", "lane": "L-GA" },
+    { "id": "T-03", "type": "sendTask", "name": "Ask CS to re-clean", "lane": "L-GA" },
+    { "id": "T-06", "type": "userTask", "name": "Raise and sign work order", "lane": "L-GA" },
+    { "id": "T-04", "type": "manualTask", "name": "Re-clean the area", "lane": "L-CS" },
+    { "id": "T-07", "type": "manualTask", "name": "Repair per work order", "lane": "L-ENG" },
+    { "id": "T-05", "type": "manualTask", "name": "Verify cleaning result", "lane": "L-GA" },
+    { "id": "T-08", "type": "userTask", "name": "Verify and close work order", "lane": "L-GA" },
+    { "id": "G-02", "type": "inclusiveGateway", "name": "", "lane": "L-GA" },
+    { "id": "T-09", "type": "userTask", "name": "Submit and file checklist", "lane": "L-GA" },
+    { "id": "E-10", "type": "endEvent", "name": "Areas under control", "lane": "L-GA" }
+  ],
+  "flows": [
+    { "from": "E-01", "to": "T-01" },
+    { "from": "T-01", "to": "T-02" },
+    { "from": "T-02", "to": "G-01" },
+    { "from": "G-01", "to": "T-03", "name": "Cleaning" },
+    { "from": "G-01", "to": "T-06", "name": "Technical" },
+    { "from": "G-01", "to": "G-02", "name": "None", "default": true },
+    { "from": "T-03", "to": "T-04" },
+    { "from": "T-04", "to": "T-05" },
+    { "from": "T-05", "to": "G-02" },
+    { "from": "T-06", "to": "T-07" },
+    { "from": "T-07", "to": "T-08" },
+    { "from": "T-08", "to": "G-02" },
+    { "from": "G-02", "to": "T-09" },
+    { "from": "T-09", "to": "E-10" }
+  ]
+}

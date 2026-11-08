@@ -248,7 +248,7 @@ journeys, and 30+ `wf-*` lo-fi building blocks cover the common UI.
 | Example | Shows |
 |---|---|
 | [`examples/b2b-wa-order/`](examples/b2b-wa-order/) | Full `/discovery` run: vision -> wireframe + traceability |
-| [`examples/sop-library/`](examples/sop-library/) | SOP register with key-person risk scores; SOP-WH-01 (English, modern layout) and SOP-GA-01 Kontrol Area (Bahasa Indonesia, classic corporate layout), each with BPMN flowchart and forms |
+| [`examples/sop-library/`](examples/sop-library/) | SOP register with key-person risk scores; SOP-WH-01 (modern layout) and SOP-GA-01 Area control (classic corporate layout, `--style classic`), each with BPMN flowchart and forms |
 | [`examples/purchase-approval/`](examples/purchase-approval/) | Small BPMN with a rework loop |
 
 <img src="docs/images/bpmn-purchase-approval.svg" alt="BPMN diagram of a purchase approval with a rework loop" width="70%">

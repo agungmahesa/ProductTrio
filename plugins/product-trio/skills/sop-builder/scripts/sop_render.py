@@ -250,7 +250,7 @@ def render_classic(md, labels):
                 # "go to 5" / "lanjut ke 5" / "langkah 5" -> section-numbered "6.5", like the step column
                 if not num:
                     return text
-                return re.sub(r"\b(ke|langkah|to|step|steps|jalankan|dan|and)\s+(\d{1,2})\b",
+                return re.sub(r"\b(ke|langkah|lakukan|to|step|steps|do|jalankan|dan|and)\s+(\d{1,2})\b",
                               lambda m: "%s %s.%s" % (m.group(1), num.group(1), m.group(2))
                               if 1 <= int(m.group(2)) <= nsteps else m.group(0), text)
             for r in rows_[1:]:
