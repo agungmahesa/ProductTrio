@@ -108,7 +108,9 @@ records, KPIs, sign-off), with a BPMN swimlane flowchart and printable checklist
 <img src="docs/images/bpmn-sop-receiving.svg" alt="BPMN swimlane flowchart of an SOP for receiving raw materials: warehouse staff, quality control and purchasing lanes, with refusal and rejection paths" width="100%">
 
 Every row of the step table names its BPMN node, so the document and the diagram cannot drift
-apart. Example: [`SOP-WH-01 Receiving raw materials`](examples/sop-library/SOP-WH-01-receiving-raw-materials/sop.md) ·
+apart. `sop_render.py` turns each SOP into one printable page (document, embedded flowchart, forms
+as appendix pages; print or save as PDF). Example: [`SOP-WH-01 Receiving raw materials`](examples/sop-library/SOP-WH-01-receiving-raw-materials/sop.md) ·
+[printable view](examples/sop-library/SOP-WH-01-receiving-raw-materials/sop.html) ·
 [SOP register](examples/sop-library/README.md)
 
 ### 📋 Product Manager artifacts

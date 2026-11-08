@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SOP-WH-01 Receiving raw materials</title>
+<link rel="stylesheet" href="https://unpkg.com/bpmn-js@18.30.1/dist/assets/bpmn-js.css">
+<style>
+  :root { --ink:#1d1f24; --muted:#5d6470; --line:#d9dce1; --paper:#ffffff; --bg:#eef0f3; --head:#f4f5f7; --accent:#2f5fa7; --ctl:#b4441c; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:14px/1.5 -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+  .bar { position:sticky; top:0; z-index:5; display:flex; gap:10px; align-items:center; padding:10px 16px; background:#fff; border-bottom:1px solid var(--line); }
+  .bar b { flex:1; }
+  .bar button { font:inherit; padding:6px 12px; border:1px solid var(--line); border-radius:6px; background:#fff; cursor:pointer; }
+  .page { max-width:1060px; margin:24px auto; background:var(--paper); padding:44px 52px; box-shadow:0 2px 14px rgba(0,0,0,.08); border-radius:4px; }
+  h1 { font-size:26px; margin:0 0 16px; padding-bottom:12px; border-bottom:3px solid var(--ink); }
+  h2 { font-size:17px; margin:30px 0 10px; padding:6px 10px; background:var(--head); border-left:4px solid var(--accent); }
+  h3 { font-size:15px; margin:18px 0 8px; }
+  table { border-collapse:collapse; width:100%; margin:8px 0 14px; font-size:13px; }
+  th, td { border:1px solid var(--line); padding:6px 8px; text-align:left; vertical-align:top; }
+  th { background:var(--head); font-weight:600; }
+  .doc-control td:first-child { width:28%; background:var(--head); font-weight:600; }
+  .ctl { display:inline-block; font-size:11px; font-weight:700; color:#fff; background:var(--ctl); border-radius:3px; padding:0 5px; text-transform:uppercase; letter-spacing:.03em; }
+  code { background:var(--head); padding:0 4px; border-radius:3px; }
+  a { color:var(--accent); }
+  #flow { height:460px; border:1px solid var(--line); border-radius:4px; margin:8px 0; }
+  .flow-note { color:var(--muted); font-size:12px; }
+  .appendix { page-break-before:always; }
+  .form h1 { font-size:20px; border-bottom-width:2px; }
+  .form td { height:30px; }
+  .meta { color:var(--muted); font-size:12px; margin-top:28px; border-top:1px solid var(--line); padding-top:8px; }
+  @media print {
+    body { background:#fff; }
+    .bar { display:none; }
+    .page { box-shadow:none; margin:0; max-width:none; padding:0 6mm; }
+    #flow { height:auto; border:none; }
+    .page + .page { page-break-before:always; }
+    h2 { break-after:avoid; }
+    tr { break-inside:avoid; }
+  }
+  @media (max-width:700px) { .page { padding:24px 16px; margin:0; } table { font-size:12px; } }
+</style>
+</head>
+<body>
+<div class="bar"><b>SOP-WH-01 Receiving raw materials</b><button onclick="window.print()">Print / save as PDF</button></div>
+<div class="page">
+<h1 id="sop-wh-01-receiving-raw-materials">SOP-WH-01 Receiving raw materials</h1>
+<table class="doc-control">
+<tr><th>Field</th><th>Value</th></tr>
+<tr><td>SOP ID</td><td>SOP-WH-01</td></tr>
+<tr><td>Title</td><td>Receiving raw materials</td></tr>
+<tr><td>Division / process owner</td><td>Warehouse / Warehouse lead</td></tr>
+<tr><td>Version</td><td>0.1</td></tr>
+<tr><td>Status</td><td>Draft</td></tr>
+<tr><td>Effective date</td><td>TBD</td></tr>
+<tr><td>Next review</td><td>2027-05</td></tr>
+<tr><td>Prepared by</td><td>Business Analyst (with Budi, warehouse staff)</td></tr>
+<tr><td>Approved by</td><td>TBD - Operations manager</td></tr>
+</table>
+<h2 id="1-purpose">1. Purpose</h2>
+<p>Make sure every delivery of tea leaves and packaging is checked against the order and for quality before it enters stock, so we never pay for, store or use goods that are wrong, short or unsafe.</p>
+<h2 id="2-scope">2. Scope</h2>
+<p><b>Applies to:</b> all deliveries of raw materials (tea leaves, matcha powder, packaging) at the Acme Tea warehouse, during opening hours 08:00-16:00. <b>Does not cover:</b> purchase ordering (SOP-PU-01), stock opname (SOP-WH-02), deliveries of finished goods to customers.</p>
+<h2 id="3-definitions">3. Definitions</h2>
+<table>
+<tr><th>Term</th><th>Meaning</th></tr>
+<tr><td>PO</td><td>Purchase order issued by purchasing</td></tr>
+<tr><td>Delivery note</td><td>Supplier's document listing what was sent</td></tr>
+<tr><td>FEFO</td><td>First expired, first out: goods with the earliest expiry date are used first</td></tr>
+<tr><td>QC</td><td>Quality control check on a sample of the delivery</td></tr>
+</table>
+<h2 id="4-references">4. References</h2>
+<table>
+<tr><th>Type</th><th>Reference</th></tr>
+<tr><td>Related SOP</td><td>SOP-PU-01 Purchase ordering; SOP-WH-02 Stock opname</td></tr>
+<tr><td>Policy</td><td>Raw material specification sheet per item (moisture, aroma, packaging)</td></tr>
+<tr><td>System</td><td>Inventory app (stock in), accounting app (supplier invoice)</td></tr>
+<tr><td>Flowchart</td><td><a href="flow.html">flow.html</a> · <a href="flow.bpmn">flow.bpmn</a></td></tr>
+</table>
+<h2 id="5-roles-and-responsibilities">5. Roles and responsibilities</h2>
+<table>
+<tr><th>Role</th><th>Responsibility in this SOP</th></tr>
+<tr><td>Warehouse staff</td><td>Checks documents, weighs, labels, stores and records stock in</td></tr>
+<tr><td>Quality control</td><td>Inspects samples and decides pass/fail against the specification</td></tr>
+<tr><td>Purchasing admin</td><td>Handles refusals and returns with the supplier; matches invoice to receipt</td></tr>
+<tr><td>Warehouse lead</td><td>Owns this SOP; checks the receiving log daily</td></tr>
+</table>
+<h2 id="6-procedure">6. Procedure</h2>
+<p>Trigger: a supplier delivery arrives at the warehouse.   Output: goods are in stock and recorded, or returned with a rejection note.</p>
+<table>
+<tr><th>No</th><th>Activity</th><th>PIC</th><th>Input / tool</th><th>Output / record</th><th>Time / SLA</th><th>Notes and controls</th><th>BPMN</th></tr>
+<tr><td>1</td><td>Receive the driver and collect the delivery note.</td><td>Warehouse staff</td><td>Delivery note</td><td>-</td><td>On arrival</td><td>Unload only after step 2.</td><td>E-01</td></tr>
+<tr><td>2</td><td>Compare the delivery note with the PO: item, quantity, supplier.</td><td>Warehouse staff</td><td>PO (inventory app)</td><td>F-01 columns 1-8</td><td>10 min</td><td><b><span class="ctl">Control</span></b> Do not accept goods without a PO.</td><td>T-01</td></tr>
+<tr><td>3</td><td>Decide: does the delivery match the PO? If yes, go to 5. If no, go to 4.</td><td>Warehouse staff</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>Quantity tolerance ±2%.</td><td>G-01</td></tr>
+<tr><td>4</td><td>Refuse the delivery, write the reason on the delivery note, and message purchasing. End.</td><td>Warehouse staff</td><td>Delivery note</td><td>Signed refusal on delivery note</td><td>15 min</td><td>Purchasing informs the supplier the same day.</td><td>T-02, E-09</td></tr>
+<tr><td>5</td><td>Take one sample per batch and inspect it against the specification sheet.</td><td>Quality control</td><td>F-02 QC checklist</td><td>F-02 completed</td><td>20 min</td><td><b><span class="ctl">Control</span></b> Moisture ≤ 5%; packaging sealed; expiry ≥ 9 months away.</td><td>T-03</td></tr>
+<tr><td>6</td><td>Decide: does every check pass? If yes, go to 7. If no, go to 12.</td><td>Quality control</td><td>F-02</td><td>Pass/fail on F-02</td><td>&nbsp;</td><td>One failed check = fail.</td><td>G-02</td></tr>
+<tr><td>7</td><td>Weigh each sack and record the actual weight.</td><td>Warehouse staff</td><td>Calibrated scale</td><td>F-01 column 9</td><td>15 min</td><td>Scale calibration date must be within 6 months.</td><td>T-04</td></tr>
+<tr><td>8</td><td>Label each sack with item, batch, expiry date and received date.</td><td>Warehouse staff</td><td>Label printer</td><td>Labels on sacks</td><td>10 min</td><td>Expiry in large print, top right.</td><td>T-05</td></tr>
+<tr><td>9</td><td>Store the sacks by FEFO: earliest expiry at the front of the rack.</td><td>Warehouse staff</td><td>Rack map</td><td>-</td><td>15 min</td><td>Off the floor, away from the wall.</td><td>T-06</td></tr>
+<tr><td>10</td><td>Enter the received quantity and batch in the inventory app.</td><td>Warehouse staff</td><td>Inventory app</td><td>Stock-in record</td><td>Same day</td><td><b><span class="ctl">Control</span></b> Quantity = weighed quantity, not the delivery note.</td><td>T-07</td></tr>
+<tr><td>11</td><td>Match the supplier invoice with the PO and the receiving log, then approve it for payment. End.</td><td>Purchasing admin</td><td>Invoice, F-01</td><td>Approved invoice</td><td>2 working days</td><td>Difference &gt; 2%: hold payment, contact supplier.</td><td>T-08, E-10</td></tr>
+<tr><td>12</td><td>Complete the rejection note with photos of the failed sample.</td><td>Quality control</td><td>F-03</td><td>F-03 completed</td><td>15 min</td><td>Keep the sample for 30 days.</td><td>T-09</td></tr>
+<tr><td>13</td><td>Arrange the return with the supplier and send them the rejection note. End.</td><td>Purchasing admin</td><td>F-03</td><td>Return confirmation</td><td>1 working day</td><td>Rejected goods stay in the red "Hold" area until collected.</td><td>T-10, E-11</td></tr>
+</table>
+<h2 id="7-flowchart">7. Flowchart</h2>
+<div id="flow"></div>
+<p>See <a href="flow.html">flow.html</a> (BPMN 2.0 swimlanes; open over http) and <a href="flow.bpmn">flow.bpmn</a>.</p>
+<h2 id="8-exceptions-and-escalation">8. Exceptions and escalation</h2>
+<table>
+<tr><th>Situation</th><th>Action</th><th>Who</th><th>Time limit</th><th>Escalate to</th></tr>
+<tr><td>Delivery arrives without a PO</td><td>Refuse (step 4)</td><td>Warehouse staff</td><td>Immediately</td><td>Purchasing admin</td></tr>
+<tr><td>Delivery after 16:00</td><td>Accept only if the warehouse lead is present; otherwise refuse</td><td>Warehouse staff</td><td>Immediately</td><td>Warehouse lead</td></tr>
+<tr><td>QC person absent</td><td>Hold goods in the "Hold" area; do not store</td><td>Warehouse staff</td><td>Until QC is done, max 24 h</td><td>Warehouse lead</td></tr>
+<tr><td>Scale out of calibration</td><td>Use the backup scale; report</td><td>Warehouse staff</td><td>Same day</td><td>Warehouse lead</td></tr>
+</table>
+<h2 id="9-records-and-forms">9. Records and forms</h2>
+<table>
+<tr><th>Form / record</th><th>Filled by</th><th>Kept where</th><th>Retention</th></tr>
+<tr><td><a href="forms/F-01-receiving-log.md">F-01 Receiving log</a></td><td>Warehouse staff</td><td>Binder WH-01</td><td>1 year</td></tr>
+<tr><td><a href="forms/F-02-qc-checklist.md">F-02 QC checklist</a></td><td>Quality control</td><td>Binder QC-01</td><td>2 years</td></tr>
+<tr><td><a href="forms/F-03-rejection-note.md">F-03 Rejection note</a></td><td>Quality control</td><td>Binder QC-01 + copy to supplier</td><td>2 years</td></tr>
+<tr><td>Stock-in record</td><td>Warehouse staff</td><td>Inventory app</td><td>As per system</td></tr>
+</table>
+<h2 id="10-controls-and-kpis">10. Controls and KPIs</h2>
+<table>
+<tr><th>Control / KPI</th><th>Target</th><th>Checked by</th><th>Frequency</th></tr>
+<tr><td>Deliveries received without PO</td><td>0</td><td>Warehouse lead</td><td>Weekly</td></tr>
+<tr><td>Receiving log complete (all columns)</td><td>100%</td><td>Warehouse lead</td><td>Daily</td></tr>
+<tr><td>Stock-in entered same day</td><td>100%</td><td>Warehouse lead</td><td>Daily</td></tr>
+<tr><td>Invoice vs receipt differences resolved</td><td>within 5 working days</td><td>Purchasing admin</td><td>Monthly</td></tr>
+</table>
+<h2 id="11-training-and-sign-off">11. Training and sign-off</h2>
+<table>
+<tr><th>Name</th><th>Role</th><th>Trained by</th><th>Date</th><th>Signature</th></tr>
+</table>
+<h2 id="12-revision-history">12. Revision history</h2>
+<table>
+<tr><th>Version</th><th>Date</th><th>Change</th><th>By</th></tr>
+<tr><td>0.1</td><td>2026-11-08</td><td>First draft from interview with warehouse staff</td><td>Business Analyst</td></tr>
+</table>
+<p><i>Acme Tea and all names, limits and numbers in this example are fictional.</i></p>
+<p class="meta">Rendered from sop.md by product-trio sop-builder. The Markdown file is the source of truth.</p>
+</div>
+<div class="page form appendix"><h1 id="f-01-receiving-log-sop-wh-01-steps-2-and-7">F-01 Receiving log   (SOP-WH-01, steps 2 and 7)</h1>
+<table>
+<tr><th>Date</th><th>Time</th><th>Supplier</th><th>PO no.</th><th>Delivery note no.</th><th>Item</th><th>Batch</th><th>Expiry date</th><th>Qty on PO</th><th>Weighed qty (kg)</th><th>Matches PO (Y/N)</th><th>QC result (Pass/Fail)</th><th>Received by</th><th>Signature</th></tr>
+</table>
+<p>Checked by warehouse lead (name, date, signature): ______________________</p></div>
+<div class="page form appendix"><h1 id="f-02-qc-checklist-sop-wh-01-steps-5-6">F-02 QC checklist   (SOP-WH-01, steps 5-6)</h1>
+<p>Date: ________  Supplier: ________  PO no.: ________  Item: ________  Batch: ________</p>
+<table>
+<tr><th>No</th><th>Check</th><th>Limit</th><th>Result</th><th>OK / Not OK</th></tr>
+<tr><td>1</td><td>Packaging sealed, no tears or moisture marks</td><td>No damage</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr><td>2</td><td>Label shows item, batch and expiry</td><td>All present</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr><td>3</td><td>Expiry date</td><td>≥ 9 months from today</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr><td>4</td><td>Moisture (meter reading)</td><td>≤ 5%</td><td>%</td><td>&nbsp;</td></tr>
+<tr><td>5</td><td>Colour against reference sample</td><td>Same grade</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr><td>6</td><td>Aroma</td><td>No mould, smoke or foreign smell</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr><td>7</td><td>Foreign matter in 100 g sample</td><td>None</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+</table>
+<p><b>Decision:</b> Pass ☐   Fail ☐  (one Not OK = Fail; complete F-03)</p>
+<p>QC name and signature: ______________________</p></div>
+<div class="page form appendix"><h1 id="f-03-rejection-note-sop-wh-01-steps-12-13">F-03 Rejection note   (SOP-WH-01, steps 12-13)</h1>
+<table>
+<tr><th>Field</th><th>Value</th></tr>
+<tr><td>Rejection no.</td><td>&nbsp;</td></tr>
+<tr><td>Date</td><td>&nbsp;</td></tr>
+<tr><td>Supplier</td><td>&nbsp;</td></tr>
+<tr><td>PO no. / delivery note no.</td><td>&nbsp;</td></tr>
+<tr><td>Item and batch</td><td>&nbsp;</td></tr>
+<tr><td>Quantity rejected</td><td>&nbsp;</td></tr>
+<tr><td>Failed checks (F-02 line numbers)</td><td>&nbsp;</td></tr>
+<tr><td>Measured values</td><td>&nbsp;</td></tr>
+<tr><td>Photos attached (number)</td><td>&nbsp;</td></tr>
+<tr><td>Sample kept until (date + 30 days)</td><td>&nbsp;</td></tr>
+<tr><td>Goods held in "Hold" area since</td><td>&nbsp;</td></tr>
+<tr><td>Return arranged by (purchasing)</td><td>&nbsp;</td></tr>
+<tr><td>Supplier acknowledgement (name, date)</td><td>&nbsp;</td></tr>
+</table>
+<p>QC name and signature: ______________________   Purchasing name and signature: ______________________</p></div>
+<script type="text/xml" id="bpmn-xml"><?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Defs_sop-wh-01" targetNamespace="http://bpmn.io/schema/bpmn" exporter="product-trio bpmn_build" exporterVersion="0.1.0">
+  <bpmn:collaboration id="Collab_sop-wh-01">
+    <bpmn:participant id="P-AcmeTea" name="Acme Tea" processRef="sop-wh-01" />
+    <bpmn:participant id="P-Supplier" name="Supplier" />
+    <bpmn:messageFlow id="MsgFlow_1" name="Goods + delivery note" sourceRef="P-Supplier" targetRef="E-01" />
+    <bpmn:messageFlow id="MsgFlow_2" name="Refusal" sourceRef="T-02" targetRef="P-Supplier" />
+    <bpmn:messageFlow id="MsgFlow_3" name="Rejection note + goods" sourceRef="T-10" targetRef="P-Supplier" />
+  </bpmn:collaboration>
+  <bpmn:process id="sop-wh-01" name="SOP-WH-01 Receiving raw materials" isExecutable="false">
+    <bpmn:documentation>Acme Tea (fictional): receiving tea leaves and packaging from suppliers at the warehouse.</bpmn:documentation>
+    <bpmn:laneSet id="LaneSet_sop-wh-01">
+      <bpmn:lane id="L-WH" name="Warehouse staff">
+        <bpmn:flowNodeRef>E-01</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T-01</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>G-01</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T-02</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>E-09</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T-04</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T-05</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T-06</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T-07</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="L-QC" name="Quality control">
+        <bpmn:flowNodeRef>T-03</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>G-02</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T-09</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="L-PU" name="Purchasing admin">
+        <bpmn:flowNodeRef>T-10</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>E-11</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T-08</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>E-10</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="E-01" name="Delivery arrives">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="E-01_def" />
+    </bpmn:startEvent>
+    <bpmn:manualTask id="T-01" name="Check delivery note against PO">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:manualTask>
+    <bpmn:exclusiveGateway id="G-01" name="Matches PO?">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+      <bpmn:outgoing>Flow_4</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:manualTask id="T-03" name="Inspect sample">
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+      <bpmn:outgoing>Flow_6</bpmn:outgoing>
+    </bpmn:manualTask>
+    <bpmn:sendTask id="T-02" name="Refuse delivery and notify purchasing">
+      <bpmn:incoming>Flow_4</bpmn:incoming>
+      <bpmn:outgoing>Flow_5</bpmn:outgoing>
+    </bpmn:sendTask>
+    <bpmn:endEvent id="E-09" name="Delivery refused">
+      <bpmn:incoming>Flow_5</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:exclusiveGateway id="G-02" name="Passes QC?">
+      <bpmn:incoming>Flow_6</bpmn:incoming>
+      <bpmn:outgoing>Flow_7</bpmn:outgoing>
+      <bpmn:outgoing>Flow_8</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:manualTask id="T-04" name="Weigh and record">
+      <bpmn:incoming>Flow_7</bpmn:incoming>
+      <bpmn:outgoing>Flow_11</bpmn:outgoing>
+    </bpmn:manualTask>
+    <bpmn:userTask id="T-09" name="Complete rejection note">
+      <bpmn:incoming>Flow_8</bpmn:incoming>
+      <bpmn:outgoing>Flow_9</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:manualTask id="T-05" name="Label with expiry date">
+      <bpmn:incoming>Flow_11</bpmn:incoming>
+      <bpmn:outgoing>Flow_12</bpmn:outgoing>
+    </bpmn:manualTask>
+    <bpmn:sendTask id="T-10" name="Return goods to supplier">
+      <bpmn:incoming>Flow_9</bpmn:incoming>
+      <bpmn:outgoing>Flow_10</bpmn:outgoing>
+    </bpmn:sendTask>
+    <bpmn:manualTask id="T-06" name="Store by FEFO">
+      <bpmn:incoming>Flow_12</bpmn:incoming>
+      <bpmn:outgoing>Flow_13</bpmn:outgoing>
+    </bpmn:manualTask>
+    <bpmn:endEvent id="E-11" name="Goods rejected">
+      <bpmn:incoming>Flow_10</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:userTask id="T-07" name="Update stock in system">
+      <bpmn:incoming>Flow_13</bpmn:incoming>
+      <bpmn:outgoing>Flow_14</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="T-08" name="Match invoice to receipt">
+      <bpmn:incoming>Flow_14</bpmn:incoming>
+      <bpmn:outgoing>Flow_15</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="E-10" name="Goods received">
+      <bpmn:incoming>Flow_15</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1" name="" sourceRef="E-01" targetRef="T-01" />
+    <bpmn:sequenceFlow id="Flow_2" name="" sourceRef="T-01" targetRef="G-01" />
+    <bpmn:sequenceFlow id="Flow_3" name="Yes" sourceRef="G-01" targetRef="T-03" />
+    <bpmn:sequenceFlow id="Flow_4" name="No" sourceRef="G-01" targetRef="T-02" />
+    <bpmn:sequenceFlow id="Flow_5" name="" sourceRef="T-02" targetRef="E-09" />
+    <bpmn:sequenceFlow id="Flow_6" name="" sourceRef="T-03" targetRef="G-02" />
+    <bpmn:sequenceFlow id="Flow_7" name="Yes" sourceRef="G-02" targetRef="T-04" />
+    <bpmn:sequenceFlow id="Flow_8" name="No" sourceRef="G-02" targetRef="T-09" />
+    <bpmn:sequenceFlow id="Flow_9" name="" sourceRef="T-09" targetRef="T-10" />
+    <bpmn:sequenceFlow id="Flow_10" name="" sourceRef="T-10" targetRef="E-11" />
+    <bpmn:sequenceFlow id="Flow_11" name="" sourceRef="T-04" targetRef="T-05" />
+    <bpmn:sequenceFlow id="Flow_12" name="" sourceRef="T-05" targetRef="T-06" />
+    <bpmn:sequenceFlow id="Flow_13" name="" sourceRef="T-06" targetRef="T-07" />
+    <bpmn:sequenceFlow id="Flow_14" name="" sourceRef="T-07" targetRef="T-08" />
+    <bpmn:sequenceFlow id="Flow_15" name="" sourceRef="T-08" targetRef="E-10" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="Diagram_sop-wh-01">
+    <bpmndi:BPMNPlane id="Plane_sop-wh-01" bpmnElement="Collab_sop-wh-01">
+      <bpmndi:BPMNShape id="P-AcmeTea_di" bpmnElement="P-AcmeTea" isHorizontal="true"><dc:Bounds x="0" y="40" width="1880" height="390" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="L-WH_di" bpmnElement="L-WH" isHorizontal="true"><dc:Bounds x="30" y="40" width="1850" height="130" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="L-QC_di" bpmnElement="L-QC" isHorizontal="true"><dc:Bounds x="30" y="170" width="1850" height="130" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="L-PU_di" bpmnElement="L-PU" isHorizontal="true"><dc:Bounds x="30" y="300" width="1850" height="130" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="E-01_di" bpmnElement="E-01"><dc:Bounds x="152" y="87" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="120" y="127" width="100" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T-01_di" bpmnElement="T-01"><dc:Bounds x="280" y="65" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="G-01_di" bpmnElement="G-01" isMarkerVisible="true"><dc:Bounds x="465" y="80" width="50" height="50" /><bpmndi:BPMNLabel><dc:Bounds x="440" y="134" width="100" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T-03_di" bpmnElement="T-03"><dc:Bounds x="600" y="195" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T-02_di" bpmnElement="T-02"><dc:Bounds x="600" y="65" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="E-09_di" bpmnElement="E-09"><dc:Bounds x="792" y="87" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="760" y="127" width="100" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="G-02_di" bpmnElement="G-02" isMarkerVisible="true"><dc:Bounds x="785" y="210" width="50" height="50" /><bpmndi:BPMNLabel><dc:Bounds x="760" y="264" width="100" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T-04_di" bpmnElement="T-04"><dc:Bounds x="920" y="65" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T-09_di" bpmnElement="T-09"><dc:Bounds x="920" y="195" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T-05_di" bpmnElement="T-05"><dc:Bounds x="1080" y="65" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T-10_di" bpmnElement="T-10"><dc:Bounds x="1080" y="325" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T-06_di" bpmnElement="T-06"><dc:Bounds x="1240" y="65" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="E-11_di" bpmnElement="E-11"><dc:Bounds x="1272" y="347" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="1240" y="387" width="100" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T-07_di" bpmnElement="T-07"><dc:Bounds x="1400" y="65" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T-08_di" bpmnElement="T-08"><dc:Bounds x="1560" y="325" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="E-10_di" bpmnElement="E-10"><dc:Bounds x="1752" y="347" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="1720" y="387" width="100" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="P-Supplier_di" bpmnElement="P-Supplier" isHorizontal="true"><dc:Bounds x="0" y="-70" width="1880" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1_di" bpmnElement="Flow_1"><di:waypoint x="188" y="105" /><di:waypoint x="280" y="105" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_2_di" bpmnElement="Flow_2"><di:waypoint x="380" y="105" /><di:waypoint x="465" y="105" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_3_di" bpmnElement="Flow_3"><di:waypoint x="490" y="130" /><di:waypoint x="490" y="235" /><di:waypoint x="600" y="235" /><bpmndi:BPMNLabel><dc:Bounds x="496" y="175.5" width="29" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_4_di" bpmnElement="Flow_4"><di:waypoint x="515" y="105" /><di:waypoint x="600" y="105" /><bpmndi:BPMNLabel><dc:Bounds x="545.5" y="85" width="24" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_5_di" bpmnElement="Flow_5"><di:waypoint x="700" y="105" /><di:waypoint x="792" y="105" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_6_di" bpmnElement="Flow_6"><di:waypoint x="700" y="235" /><di:waypoint x="785" y="235" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_7_di" bpmnElement="Flow_7"><di:waypoint x="835" y="235" /><di:waypoint x="872" y="235" /><di:waypoint x="872" y="105" /><di:waypoint x="920" y="105" /><bpmndi:BPMNLabel><dc:Bounds x="876" y="163" width="29" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_8_di" bpmnElement="Flow_8"><di:waypoint x="835" y="235" /><di:waypoint x="920" y="235" /><bpmndi:BPMNLabel><dc:Bounds x="865.5" y="215" width="24" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_9_di" bpmnElement="Flow_9"><di:waypoint x="1020" y="235" /><di:waypoint x="1050" y="235" /><di:waypoint x="1050" y="365" /><di:waypoint x="1080" y="365" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_10_di" bpmnElement="Flow_10"><di:waypoint x="1180" y="365" /><di:waypoint x="1272" y="365" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_11_di" bpmnElement="Flow_11"><di:waypoint x="1020" y="105" /><di:waypoint x="1080" y="105" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_12_di" bpmnElement="Flow_12"><di:waypoint x="1180" y="105" /><di:waypoint x="1240" y="105" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_13_di" bpmnElement="Flow_13"><di:waypoint x="1340" y="105" /><di:waypoint x="1400" y="105" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_14_di" bpmnElement="Flow_14"><di:waypoint x="1500" y="105" /><di:waypoint x="1530" y="105" /><di:waypoint x="1530" y="365" /><di:waypoint x="1560" y="365" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_15_di" bpmnElement="Flow_15"><di:waypoint x="1660" y="365" /><di:waypoint x="1752" y="365" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MsgFlow_1_di" bpmnElement="MsgFlow_1"><di:waypoint x="170" y="0" /><di:waypoint x="170" y="87" /><bpmndi:BPMNLabel><dc:Bounds x="176" y="13" width="90" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MsgFlow_2_di" bpmnElement="MsgFlow_2"><di:waypoint x="650" y="65" /><di:waypoint x="650" y="0" /><bpmndi:BPMNLabel><dc:Bounds x="656" y="13" width="90" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MsgFlow_3_di" bpmnElement="MsgFlow_3"><di:waypoint x="1130" y="325" /><di:waypoint x="1130" y="159" /><di:waypoint x="1202" y="159" /><di:waypoint x="1202" y="0" /><bpmndi:BPMNLabel><dc:Bounds x="1136" y="298" width="90" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
+</script>
+<script src="https://unpkg.com/bpmn-js@18.30.1/dist/bpmn-navigated-viewer.production.min.js"></script>
+<script>
+(async function () {
+  const el = document.getElementById('flow');
+  const xml = document.getElementById('bpmn-xml').textContent.trim();
+  if (!el) return;
+  if (!xml) { el.outerHTML = '<p class="flow-note">No flow.bpmn found next to sop.md.</p>'; return; }
+  if (!window.BpmnJS) { el.outerHTML = '<p class="flow-note">Flowchart viewer could not load (offline). Open flow.bpmn in bpmn.io or Camunda Modeler.</p>'; return; }
+  const v = new BpmnJS({ container: el });
+  try { await v.importXML(xml); } catch (e) { el.outerHTML = '<p class="flow-note">Flowchart error: ' + e.message + '</p>'; return; }
+  const c = v.get('canvas');
+  const fit = () => { try { c.resized(); c.zoom('fit-viewport', 'auto'); } catch (e) {} };
+  requestAnimationFrame(fit); window.addEventListener('resize', fit); window.addEventListener('beforeprint', fit);
+})();
+</script>
+</body>
+</html>

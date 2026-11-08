@@ -16,6 +16,7 @@ action per step, a named role for every step, and evidence (a record) for every 
   - `docs/sop/<SOP-ID>-<slug>/sop.md` - the SOP document.
   - `docs/sop/<SOP-ID>-<slug>/flow.json` -> `flow.bpmn` + `flow.html` - swimlane flowchart.
   - `docs/sop/<SOP-ID>-<slug>/forms/F-xx-<slug>.md` - checklists and logs.
+  - `docs/sop/<SOP-ID>-<slug>/sop.html` - printable view (generated, step 5).
 - IDs: SOP `SOP-<DIV>-<nn>` (e.g. `SOP-WH-01` for warehouse), steps `1, 2, 3...`, forms `F-01...`,
   BPMN nodes follow the `bpmn-flow` skill (`T-xx`, `G-xx`, `E-xx`); each activity-table step lists
   its BPMN node ID so the table and the flowchart never drift apart.
@@ -76,6 +77,14 @@ escalation, 9 Records and forms, 10 Controls and KPIs, 11 Training and sign-off,
 For every record named in the procedure, write `forms/F-xx-<slug>.md`: a printable checklist or log
 as a table with the exact columns staff fill in (date, time, name, values with units and limits,
 pass/fail, signature). Limits must be numbers, not words ("moisture <= 5%", not "dry enough").
+
+### 5. Render the printable SOP
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/skills/sop-builder/scripts/sop_render.py" docs/sop/<SOP-ID>-<slug>
+```
+Writes `sop.html`: the SOP as a controlled document with the BPMN flowchart embedded in section 7
+and every form as a printable appendix page ("Print / save as PDF" button). Re-run after every
+change; `sop.md` stays the source of truth. Open it over http (`python3 -m http.server`).
 
 ## Writing rules (check every step)
 - Start each step with a verb in the imperative: "Weigh the sacks", "Record the batch number".
