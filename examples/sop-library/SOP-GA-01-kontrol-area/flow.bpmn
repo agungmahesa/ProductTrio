@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Defs_sop-ga-01" targetNamespace="http://bpmn.io/schema/bpmn" exporter="product-trio bpmn_build" exporterVersion="0.1.0">
+  <bpmn:collaboration id="Collab_sop-ga-01">
+    <bpmn:participant id="P-AcmeTea" name="PT Acme Tea Indonesia" processRef="sop-ga-01" />
+  </bpmn:collaboration>
+  <bpmn:process id="sop-ga-01" name="SOP-GA-01 Kontrol Area" isExecutable="false">
+    <bpmn:documentation>PT Acme Tea Indonesia (fiktif): kontrol kebersihan dan kondisi area kantor dan unit.</bpmn:documentation>
+    <bpmn:laneSet id="LaneSet_sop-ga-01">
+      <bpmn:lane id="L-GA" name="Staf GA">
+        <bpmn:flowNodeRef>E-01</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T-01</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T-02</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>G-01</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T-03</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T-06</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T-05</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T-08</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>G-02</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>T-09</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>E-10</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="L-CS" name="Cleaning Service">
+        <bpmn:flowNodeRef>T-04</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="L-ENG" name="Tim Engineering">
+        <bpmn:flowNodeRef>T-07</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="E-01" name="Jadwal kontrol 08:00 &amp; 14:00">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="E-01_def">
+      </bpmn:timerEventDefinition>
+    </bpmn:startEvent>
+    <bpmn:manualTask id="T-01" name="Periksa area sesuai checklist">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:manualTask>
+    <bpmn:userTask id="T-02" name="Catat hasil dan foto temuan">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:inclusiveGateway id="G-01" name="Ada temuan?" default="Flow_6">
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+      <bpmn:outgoing>Flow_4</bpmn:outgoing>
+      <bpmn:outgoing>Flow_5</bpmn:outgoing>
+      <bpmn:outgoing>Flow_6</bpmn:outgoing>
+    </bpmn:inclusiveGateway>
+    <bpmn:sendTask id="T-03" name="Minta CS membersihkan ulang">
+      <bpmn:incoming>Flow_4</bpmn:incoming>
+      <bpmn:outgoing>Flow_7</bpmn:outgoing>
+    </bpmn:sendTask>
+    <bpmn:userTask id="T-06" name="Buat dan tandatangani WO">
+      <bpmn:incoming>Flow_5</bpmn:incoming>
+      <bpmn:outgoing>Flow_10</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:manualTask id="T-04" name="Bersihkan ulang area">
+      <bpmn:incoming>Flow_7</bpmn:incoming>
+      <bpmn:outgoing>Flow_8</bpmn:outgoing>
+    </bpmn:manualTask>
+    <bpmn:manualTask id="T-07" name="Perbaiki sesuai WO">
+      <bpmn:incoming>Flow_10</bpmn:incoming>
+      <bpmn:outgoing>Flow_11</bpmn:outgoing>
+    </bpmn:manualTask>
+    <bpmn:manualTask id="T-05" name="Verifikasi hasil pembersihan">
+      <bpmn:incoming>Flow_8</bpmn:incoming>
+      <bpmn:outgoing>Flow_9</bpmn:outgoing>
+    </bpmn:manualTask>
+    <bpmn:userTask id="T-08" name="Verifikasi dan tutup WO">
+      <bpmn:incoming>Flow_11</bpmn:incoming>
+      <bpmn:outgoing>Flow_12</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:inclusiveGateway id="G-02" name="">
+      <bpmn:incoming>Flow_6</bpmn:incoming>
+      <bpmn:incoming>Flow_9</bpmn:incoming>
+      <bpmn:incoming>Flow_12</bpmn:incoming>
+      <bpmn:outgoing>Flow_13</bpmn:outgoing>
+    </bpmn:inclusiveGateway>
+    <bpmn:userTask id="T-09" name="Serahkan dan arsipkan checklist">
+      <bpmn:incoming>Flow_13</bpmn:incoming>
+      <bpmn:outgoing>Flow_14</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="E-10" name="Area terkendali">
+      <bpmn:incoming>Flow_14</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1" name="" sourceRef="E-01" targetRef="T-01" />
+    <bpmn:sequenceFlow id="Flow_2" name="" sourceRef="T-01" targetRef="T-02" />
+    <bpmn:sequenceFlow id="Flow_3" name="" sourceRef="T-02" targetRef="G-01" />
+    <bpmn:sequenceFlow id="Flow_4" name="Kebersihan" sourceRef="G-01" targetRef="T-03" />
+    <bpmn:sequenceFlow id="Flow_5" name="Teknis" sourceRef="G-01" targetRef="T-06" />
+    <bpmn:sequenceFlow id="Flow_6" name="Tidak ada" sourceRef="G-01" targetRef="G-02" />
+    <bpmn:sequenceFlow id="Flow_7" name="" sourceRef="T-03" targetRef="T-04" />
+    <bpmn:sequenceFlow id="Flow_8" name="" sourceRef="T-04" targetRef="T-05" />
+    <bpmn:sequenceFlow id="Flow_9" name="" sourceRef="T-05" targetRef="G-02" />
+    <bpmn:sequenceFlow id="Flow_10" name="" sourceRef="T-06" targetRef="T-07" />
+    <bpmn:sequenceFlow id="Flow_11" name="" sourceRef="T-07" targetRef="T-08" />
+    <bpmn:sequenceFlow id="Flow_12" name="" sourceRef="T-08" targetRef="G-02" />
+    <bpmn:sequenceFlow id="Flow_13" name="" sourceRef="G-02" targetRef="T-09" />
+    <bpmn:sequenceFlow id="Flow_14" name="" sourceRef="T-09" targetRef="E-10" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="Diagram_sop-ga-01">
+    <bpmndi:BPMNPlane id="Plane_sop-ga-01" bpmnElement="Collab_sop-ga-01">
+      <bpmndi:BPMNShape id="P-AcmeTea_di" bpmnElement="P-AcmeTea" isHorizontal="true"><dc:Bounds x="0" y="40" width="1720" height="500" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="L-GA_di" bpmnElement="L-GA" isHorizontal="true"><dc:Bounds x="30" y="40" width="1690" height="240" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="L-CS_di" bpmnElement="L-CS" isHorizontal="true"><dc:Bounds x="30" y="280" width="1690" height="130" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="L-ENG_di" bpmnElement="L-ENG" isHorizontal="true"><dc:Bounds x="30" y="410" width="1690" height="130" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="E-01_di" bpmnElement="E-01"><dc:Bounds x="152" y="87" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="120" y="127" width="100" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T-01_di" bpmnElement="T-01"><dc:Bounds x="280" y="65" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T-02_di" bpmnElement="T-02"><dc:Bounds x="440" y="65" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="G-01_di" bpmnElement="G-01"><dc:Bounds x="625" y="80" width="50" height="50" /><bpmndi:BPMNLabel><dc:Bounds x="600" y="134" width="100" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T-03_di" bpmnElement="T-03"><dc:Bounds x="760" y="65" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T-06_di" bpmnElement="T-06"><dc:Bounds x="760" y="175" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T-04_di" bpmnElement="T-04"><dc:Bounds x="920" y="305" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T-07_di" bpmnElement="T-07"><dc:Bounds x="920" y="435" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T-05_di" bpmnElement="T-05"><dc:Bounds x="1080" y="65" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T-08_di" bpmnElement="T-08"><dc:Bounds x="1080" y="175" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="G-02_di" bpmnElement="G-02"><dc:Bounds x="1265" y="80" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="T-09_di" bpmnElement="T-09"><dc:Bounds x="1400" y="65" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="E-10_di" bpmnElement="E-10"><dc:Bounds x="1592" y="87" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="1560" y="127" width="100" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1_di" bpmnElement="Flow_1"><di:waypoint x="188" y="105" /><di:waypoint x="280" y="105" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_2_di" bpmnElement="Flow_2"><di:waypoint x="380" y="105" /><di:waypoint x="440" y="105" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_3_di" bpmnElement="Flow_3"><di:waypoint x="540" y="105" /><di:waypoint x="625" y="105" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_4_di" bpmnElement="Flow_4"><di:waypoint x="675" y="105" /><di:waypoint x="760" y="105" /><bpmndi:BPMNLabel><dc:Bounds x="678.5" y="85" width="78" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_5_di" bpmnElement="Flow_5"><di:waypoint x="650" y="130" /><di:waypoint x="650" y="215" /><di:waypoint x="760" y="215" /><bpmndi:BPMNLabel><dc:Bounds x="656" y="165.5" width="50" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_6_di" bpmnElement="Flow_6"><di:waypoint x="650" y="130" /><di:waypoint x="650" y="159" /><di:waypoint x="1290" y="159" /><di:waypoint x="1290" y="130" /><bpmndi:BPMNLabel><dc:Bounds x="705" y="143" width="71" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_7_di" bpmnElement="Flow_7"><di:waypoint x="860" y="105" /><di:waypoint x="890" y="105" /><di:waypoint x="890" y="345" /><di:waypoint x="920" y="345" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_8_di" bpmnElement="Flow_8"><di:waypoint x="1020" y="345" /><di:waypoint x="1050" y="345" /><di:waypoint x="1050" y="105" /><di:waypoint x="1080" y="105" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_9_di" bpmnElement="Flow_9"><di:waypoint x="1180" y="105" /><di:waypoint x="1265" y="105" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_10_di" bpmnElement="Flow_10"><di:waypoint x="860" y="215" /><di:waypoint x="890" y="215" /><di:waypoint x="890" y="475" /><di:waypoint x="920" y="475" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_11_di" bpmnElement="Flow_11"><di:waypoint x="1020" y="475" /><di:waypoint x="1050" y="475" /><di:waypoint x="1050" y="215" /><di:waypoint x="1080" y="215" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_12_di" bpmnElement="Flow_12"><di:waypoint x="1180" y="215" /><di:waypoint x="1222.5" y="215" /><di:waypoint x="1222.5" y="105" /><di:waypoint x="1265" y="105" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_13_di" bpmnElement="Flow_13"><di:waypoint x="1315" y="105" /><di:waypoint x="1400" y="105" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_14_di" bpmnElement="Flow_14"><di:waypoint x="1500" y="105" /><di:waypoint x="1592" y="105" /></bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

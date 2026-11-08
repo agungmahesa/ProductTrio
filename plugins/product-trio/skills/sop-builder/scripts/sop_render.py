@@ -143,19 +143,160 @@ __FORMS__
 """
 
 
+CLASSIC_CSS = """
+<style>
+  body.classic { font-family: Calibri, Carlito, "Segoe UI", Arial, sans-serif; font-size:14px; }
+  .classic .page { padding:36px 40px; }
+  .classic .kop { width:100%; border-collapse:collapse; margin:0 0 -1px; }
+  .classic .kop td { border:1.5px solid #222; padding:4px 8px; font-weight:700; }
+  .classic .kop .logo { width:18%; text-align:center; font-size:15px; }
+  .classic .kop .t { text-align:center; text-transform:uppercase; }
+  .classic .kop .k { width:11%; font-weight:400; }
+  .classic .kop .v { width:13%; font-weight:400; }
+  .classic .box { border:1.5px solid #222; border-top:none; padding:8px 12px 12px; }
+  .classic .box > h2 { all:unset; display:block; font-weight:700; text-transform:uppercase; margin:2px 0 4px; }
+  .classic .box p { margin:2px 0; text-align:justify; }
+  .classic .box table { margin:6px 0 2px; }
+  .classic .box ol, .classic .box ul { margin:2px 0; padding-left:22px; }
+  .classic table.act { border-collapse:collapse; width:100%; margin:0; }
+  .classic table.act th, .classic table.act td { border:1.5px solid #222; padding:5px 7px; vertical-align:top; }
+  .classic table.act th { background:#fff; text-align:center; text-transform:uppercase; }
+  .classic table.act td.c { text-align:center; }
+  .classic table.act .note { display:block; color:#555; font-size:12px; margin-top:2px; }
+  .classic .act-wrap { border:1.5px solid #222; border-top:none; padding:0; }
+</style>
+"""
+
+ALIASES = {
+    "no": ["no", "no."],
+    "act": ["activity", "aktivitas", "kegiatan", "langkah"],
+    "pic": ["pic", "tanggung jawab", "penanggung jawab", "pelaksana"],
+    "doc": ["output / record", "dokumen", "record", "output", "catatan / dokumen"],
+    "note": ["notes and controls", "catatan dan kontrol", "kontrol", "catatan"],
+    "time": ["time / sla", "waktu / sla", "waktu"],
+    "bpmn": ["bpmn"],
+}
+
+
+def split_md(md):
+    """-> title, doc-control rows [(k, v)], sections [(heading, body_md)]"""
+    title = re.search(r"^#\s+(.*)$", md, re.M)
+    title = title.group(1).strip() if title else ""
+    parts = re.split(r"^##\s+", md, flags=re.M)
+    head, secs = parts[0], []
+    for p in parts[1:]:
+        h, _, body = p.partition("\n")
+        secs.append((h.strip(), body))
+    ctrl = []
+    for line in head.splitlines():
+        if line.strip().startswith("|"):
+            c = [x.strip() for x in line.strip().strip("|").split("|")]
+            if len(c) >= 2 and not re.match(r"^:?-{2,}", c[0]):
+                ctrl.append((c[0], c[1]))
+    return title, ctrl[1:] if ctrl and ctrl[0][0].lower() in ("field", "kolom", "item") else ctrl, secs
+
+
+def table_rows(body):
+    rows = [[c.strip() for c in l.strip().strip("|").split("|")] for l in body.splitlines() if l.strip().startswith("|")]
+    return [r for r in rows if not all(re.match(r"^:?-{2,}:?$", c) for c in r if c)]
+
+
+def find(ctrl, *keys):
+    for k, v in ctrl:
+        if any(x in k.lower() for x in keys):
+            return v
+    return ""
+
+
+def render_classic(md, labels):
+    title, ctrl, secs = split_md(md)
+    company = find(ctrl, "company", "perusahaan") or "LOGO"
+    dept = find(ctrl, "division", "departemen", "divisi")
+    dept = dept.split("/")[0].strip() if dept else ""
+    proc = find(ctrl, "title", "judul") or title
+    rows = [
+        (labels["sop"], labels["no"], find(ctrl, "sop id", "no. sop", "nomor")),
+        ((labels["dept"] + " " + dept).strip(), labels["date"], find(ctrl, "effective", "tanggal berlaku", "tanggal")),
+        ((labels["proc"] + " " + proc).strip(), labels["approved"], find(ctrl, "approved", "disetujui")),
+    ]
+    kop = ['<table class="kop">']
+    for i, (t, k, v) in enumerate(rows):
+        kop.append("<tr>%s<td class='t'>%s</td><td class='k'>%s</td><td class='v'>%s</td></tr>" % (
+            '<td class="logo" rowspan="3">%s</td>' % inline(company) if i == 0 else "", inline(t), k, inline(v)))
+    kop.append("</table>")
+    out = ["\n".join(kop)]
+    extra = [(k, v) for k, v in ctrl if not any(x in k.lower() for x in (
+        "sop id", "title", "judul", "division", "departemen", "divisi", "effective", "tanggal", "approved",
+        "disetujui", "company", "perusahaan", "no. sop", "nomor"))]
+    if extra:
+        out.append('<div class="box"><p>%s</p></div>' % " · ".join("<b>%s:</b> %s" % (inline(k), inline(v)) for k, v in extra))
+    for h, body in secs:
+        name = re.sub(r"^\d+[.)]?\s*", "", h)
+        num = re.match(r"^(\d+)", h)
+        rows_ = table_rows(body)
+        hdr = [c.lower() for c in rows_[0]] if rows_ else []
+        col = {k: next((i for i, c in enumerate(hdr) if c in v), None) for k, v in ALIASES.items()}
+        if rows_ and col["act"] is not None and col["pic"] is not None:
+            intro = "\n".join(l for l in body.splitlines() if l.strip() and not l.strip().startswith("|"))
+            if intro:
+                out.append('<div class="box"><h2>%s</h2>%s</div>' % (inline(name), md_to_html(intro)))
+            else:
+                out.append('<div class="box"><h2>%s</h2></div>' % inline(name))
+            t = ['<div class="act-wrap"><table class="act"><tr><th style="width:17%%">%s</th><th style="width:8%%">%s</th>'
+                 '<th>%s</th><th style="width:17%%">%s</th></tr>' % (labels["pic"], labels["no"], labels["act"], labels["doc"])]
+            nsteps = len(rows_) - 1
+
+            def renum(text):
+                # "go to 5" / "lanjut ke 5" / "langkah 5" -> section-numbered "6.5", like the step column
+                if not num:
+                    return text
+                return re.sub(r"\b(ke|langkah|to|step|steps|jalankan|dan|and)\s+(\d{1,2})\b",
+                              lambda m: "%s %s.%s" % (m.group(1), num.group(1), m.group(2))
+                              if 1 <= int(m.group(2)) <= nsteps else m.group(0), text)
+            for r in rows_[1:]:
+                g = lambda k: renum(r[col[k]]) if col[k] is not None and col[k] < len(r) else ""
+                no = r[col["no"]] if col["no"] is not None else ""
+                no = "%s.%s" % (num.group(1), no) if num and no.isdigit() else no
+                note = " · ".join(x for x in (g("note"), g("time")) if x and x != "-")
+                t.append("<tr><td class='c'>%s</td><td class='c'>%s</td><td>%s%s</td><td class='c'>%s</td></tr>" % (
+                    inline(g("pic")), inline(no), inline(g("act")),
+                    '<span class="note">%s</span>' % inline(note) if note else "", inline(g("doc")) if g("doc") != "-" else ""))
+            t.append("</table></div>")
+            out.append("".join(t))
+        else:
+            out.append('<div class="box"><h2>%s</h2>%s</div>' % (inline(name), md_to_html(body)))
+    return title, "\n".join(out)
+
+
+LABELS = {
+    "en": dict(sop="Standard Operating Procedure", dept="Department", proc="Procedure", no="No.", date="Date",
+               approved="Approved", pic="Responsible", act="Activity", doc="Document"),
+    "id": dict(sop="Standard Operating Procedure", dept="Departemen", proc="Prosedur", no="No.", date="Tanggal",
+               approved="Disetujui", pic="Tanggung Jawab", act="Aktivitas", doc="Dokumen"),
+}
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("folder")
     ap.add_argument("--out")
+    ap.add_argument("--style", choices=["modern", "classic"], default="modern",
+                    help="classic = boxed corporate layout (logo + title header, Responsible | No | Activity | Document)")
+    ap.add_argument("--lang", choices=["en", "id"], default="en", help="labels for the classic layout")
     a = ap.parse_args()
     src = os.path.join(a.folder, "sop.md")
     if not os.path.exists(src):
         sys.exit("sop.md not found in %s" % a.folder)
     md = open(src, encoding="utf-8").read()
-    doc = md_to_html(md)
-    doc = doc.replace("<table>", '<table class="doc-control">', 1)
-    # section 7: embed the flowchart right after its heading
-    doc = re.sub(r'(<h2 id="7-[^"]*">.*?</h2>)', r'\1\n<div id="flow"></div>', doc, count=1)
+    if a.style == "classic":
+        _, doc = render_classic(md, LABELS[a.lang])
+        doc = re.sub(r'(<div class="box"><h2>(?:Flowchart|Diagram alir|Bagan alir)[^<]*</h2>)', r'\1<div id="flow"></div>',
+                     doc, count=1, flags=re.I)
+    else:
+        doc = md_to_html(md)
+        doc = doc.replace("<table>", '<table class="doc-control">', 1)
+        # section 7: embed the flowchart right after its heading
+        doc = re.sub(r'(<h2 id="7-[^"]*">.*?</h2>)', r'\1\n<div id="flow"></div>', doc, count=1)
     title = re.search(r"^#\s+(.*)$", md, re.M)
     title = title.group(1).strip() if title else os.path.basename(os.path.abspath(a.folder))
     forms = []
@@ -163,7 +304,11 @@ def main():
         forms.append('<div class="page form appendix">%s</div>' % md_to_html(open(f, encoding="utf-8").read()))
     bpmn = os.path.join(a.folder, "flow.bpmn")
     xml = open(bpmn, encoding="utf-8").read() if os.path.exists(bpmn) else ""
-    page = (PAGE.replace("__TITLE__", html.escape(title)).replace("__VER__", BPMN_JS_VERSION)
+    page = PAGE
+    if a.style == "classic":
+        page = page.replace("</head>", CLASSIC_CSS + "</head>").replace("<body>", '<body class="classic">')
+        page = page.replace("Print / save as PDF", "Cetak / simpan PDF" if a.lang == "id" else "Print / save as PDF")
+    page = (page.replace("__TITLE__", html.escape(title)).replace("__VER__", BPMN_JS_VERSION)
             .replace("__DOC__", doc).replace("__FORMS__", "\n".join(forms))
             .replace("__XML__", xml.replace("</script", "<\\/script")))
     out = a.out or os.path.join(a.folder, "sop.html")

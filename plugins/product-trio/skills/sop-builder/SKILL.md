@@ -86,6 +86,21 @@ Writes `sop.html`: the SOP as a controlled document with the BPMN flowchart embe
 and every form as a printable appendix page ("Print / save as PDF" button). Re-run after every
 change; `sop.md` stays the source of truth. Open it over http (`python3 -m http.server`).
 
+Layouts:
+- `--style modern` (default): clean document with a control table and numbered sections.
+- `--style classic --lang id|en`: the boxed corporate layout common in Indonesian companies -
+  header with logo cell, "Standard Operating Procedure / Departemen ... / Prosedur ..." and
+  No. / Tanggal / Disetujui; boxed Tujuan, Ruang Lingkup, Definisi, Referensi; activity table
+  **Tanggung Jawab | No. | Aktivitas | Dokumen** numbered by section (6.1, 6.2 ...), with step
+  references ("lanjut ke 5") renumbered to match. Add a `Perusahaan` / `Company` row to the
+  control table to fill the logo cell.
+
+**If the user shares their company's SOP template** (file or screenshot), match it: keep its section
+order, headings, column names and numbering in `sop.md`, pick the closest render style, and say
+which parts of the template could not be reproduced. Also review their existing SOP against the
+writing rules below and list concrete fixes (typos, steps that are questions instead of actions,
+missing criteria, missing time limits, unclear roles).
+
 ## Writing rules (check every step)
 - Start each step with a verb in the imperative: "Weigh the sacks", "Record the batch number".
 - One action per step; a step with "and then" is two steps.
