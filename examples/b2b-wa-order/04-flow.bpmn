@@ -223,8 +223,8 @@
       <bpmndi:BPMNEdge id="Flow_13_di" bpmnElement="Flow_13"><di:waypoint x="1610" y="130" /><di:waypoint x="1610" y="215" /><di:waypoint x="1752" y="215" /></bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_14_di" bpmnElement="Flow_14"><di:waypoint x="1788" y="105" /><di:waypoint x="1880" y="105" /></bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_15_di" bpmnElement="Flow_15"><di:waypoint x="1980" y="105" /><di:waypoint x="2065" y="105" /></bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_16_di" bpmnElement="Flow_16"><di:waypoint x="2115" y="105" /><di:waypoint x="2200" y="105" /><bpmndi:BPMNLabel><dc:Bounds x="2161.5" y="87" width="70" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_17_di" bpmnElement="Flow_17"><di:waypoint x="2090" y="130" /><di:waypoint x="2090" y="215" /><di:waypoint x="2225" y="215" /><bpmndi:BPMNLabel><dc:Bounds x="2096" y="165.5" width="70" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_16_di" bpmnElement="Flow_16"><di:waypoint x="2115" y="105" /><di:waypoint x="2200" y="105" /><bpmndi:BPMNLabel><dc:Bounds x="2143" y="85" width="29" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_17_di" bpmnElement="Flow_17"><di:waypoint x="2090" y="130" /><di:waypoint x="2090" y="215" /><di:waypoint x="2225" y="215" /><bpmndi:BPMNLabel><dc:Bounds x="2096" y="165.5" width="24" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_18_di" bpmnElement="Flow_18"><di:waypoint x="1788" y="215" /><di:waypoint x="2225" y="215" /></bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_19_di" bpmnElement="Flow_19"><di:waypoint x="2275" y="215" /><di:waypoint x="2312" y="215" /><di:waypoint x="2312" y="105" /><di:waypoint x="2360" y="105" /></bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_20_di" bpmnElement="Flow_20"><di:waypoint x="2460" y="105" /><di:waypoint x="2480" y="105" /><di:waypoint x="2480" y="273" /><di:waypoint x="1450" y="273" /><di:waypoint x="1450" y="130" /></bpmndi:BPMNEdge>

@@ -369,13 +369,26 @@ def layout(spec, by_id, out_e, in_e):
             return any(o != node_id and o_sh[0] - 4 <= xx <= o_sh[0] + o_sh[2] + 4
                        and o_sh[1] < hi and o_sh[1] + o_sh[3] > lo
                        for o, o_sh in shapes.items())
+        detour = None
         if blocked(x):
             half = sh[2] / 2 - 6
             for dx in (half, -half, half * .6, -half * .6):
                 if not blocked(sh[0] + sh[2] / 2 + dx):
                     x = sh[0] + sh[2] / 2 + dx
                     break
-        if node_id == a:
+            else:
+                # a node sits right above/below in the same column: leave the node, jog into
+                # the column gap beside it, then run straight to the pool
+                blockers = [o_sh for o, o_sh in shapes.items() if o != node_id
+                            and o_sh[0] - 4 <= x <= o_sh[0] + o_sh[2] + 4
+                            and o_sh[1] < hi and o_sh[1] + o_sh[3] > lo]
+                near = max(blockers, key=lambda b: b[1]) if above else min(blockers, key=lambda b: b[1])
+                jog_y = (near[1] + near[3] + 14) if above else (near[1] - 14)
+                gap_x = sh[0] + sh[2] / 2 + SIZE["task"][0] / 2 + 22
+                detour = [(x, node_y), (x, jog_y), (gap_x, jog_y), (gap_x, pool_y_edge)]
+        if detour:
+            medges[m["id"]] = detour if node_id == a else list(reversed(detour))
+        elif node_id == a:
             medges[m["id"]] = [(x, node_y), (x, pool_y_edge)]
         else:
             medges[m["id"]] = [(x, pool_y_edge), (x, node_y)]
@@ -490,14 +503,19 @@ def to_xml(spec, by_id, out_e, in_e, lay):
             pts_ = lay["edges"][f["id"]]
             x, y = pts_[0]
             x2, y2 = pts_[1]
+            lw = max(24, 7 * len(f["name"]) + 8)   # bpmn-js centres text inside these bounds
             if len(pts_) == 4 and abs(x - x2) < 1 and abs(pts_[1][1] - pts_[2][1]) < 1:
                 # detour / loop: label on the horizontal leg, clear of the source label
-                lx, ly = x + 55 if pts_[2][0] > x else x - 125, y2 - 16
+                lx, ly = x + 55 if pts_[2][0] > x else x - 55 - lw, y2 - 16
+            elif len(pts_) == 4 and abs(y - y2) < 1:
+                # right, down/up, right elbow: label beside the vertical leg (in the column gap),
+                # so it never collides with a straight branch leaving the same gateway
+                lx, ly = x2 + 4, (pts_[1][1] + pts_[2][1]) / 2 - 7
             elif abs(y - y2) < 1:
-                lx, ly = (x + x2) / 2 + 4, y - 18
+                lx, ly = (x + x2) / 2 - lw / 2, y - 20
             else:
                 lx, ly = x + 6, (y + y2) / 2 - 7
-            label = '<bpmndi:BPMNLabel>%s</bpmndi:BPMNLabel>' % bounds((lx, ly, 70, 14))
+            label = '<bpmndi:BPMNLabel>%s</bpmndi:BPMNLabel>' % bounds((lx, ly, lw, 14))
         w('      <bpmndi:BPMNEdge id="%s_di" bpmnElement=%s>%s%s</bpmndi:BPMNEdge>' % (
             f["id"], quoteattr(f["id"]), pts, label))
     for m in spec.get("messageFlows") or []:

@@ -1,0 +1,55 @@
+{
+  "id": "sop-wh-01",
+  "name": "SOP-WH-01 Receiving raw materials",
+  "description": "Acme Tea (fictional): receiving tea leaves and packaging from suppliers at the warehouse.",
+  "pool": {
+    "id": "P-AcmeTea",
+    "name": "Acme Tea",
+    "lanes": [
+      { "id": "L-WH", "name": "Warehouse staff" },
+      { "id": "L-QC", "name": "Quality control" },
+      { "id": "L-PU", "name": "Purchasing admin" }
+    ]
+  },
+  "externalPools": [ { "id": "P-Supplier", "name": "Supplier", "position": "top" } ],
+  "nodes": [
+    { "id": "E-01", "type": "startEvent", "event": "message", "name": "Delivery arrives", "lane": "L-WH" },
+    { "id": "T-01", "type": "manualTask", "name": "Check delivery note against PO", "lane": "L-WH" },
+    { "id": "G-01", "type": "exclusiveGateway", "name": "Matches PO?", "lane": "L-WH" },
+    { "id": "T-03", "type": "manualTask", "name": "Inspect sample", "lane": "L-QC" },
+    { "id": "T-02", "type": "sendTask", "name": "Refuse delivery and notify purchasing", "lane": "L-WH" },
+    { "id": "E-09", "type": "endEvent", "name": "Delivery refused", "lane": "L-WH" },
+    { "id": "G-02", "type": "exclusiveGateway", "name": "Passes QC?", "lane": "L-QC" },
+    { "id": "T-04", "type": "manualTask", "name": "Weigh and record", "lane": "L-WH" },
+    { "id": "T-09", "type": "userTask", "name": "Complete rejection note", "lane": "L-QC" },
+    { "id": "T-05", "type": "manualTask", "name": "Label with expiry date", "lane": "L-WH" },
+    { "id": "T-10", "type": "sendTask", "name": "Return goods to supplier", "lane": "L-PU" },
+    { "id": "T-06", "type": "manualTask", "name": "Store by FEFO", "lane": "L-WH" },
+    { "id": "E-11", "type": "endEvent", "name": "Goods rejected", "lane": "L-PU" },
+    { "id": "T-07", "type": "userTask", "name": "Update stock in system", "lane": "L-WH" },
+    { "id": "T-08", "type": "userTask", "name": "Match invoice to receipt", "lane": "L-PU" },
+    { "id": "E-10", "type": "endEvent", "name": "Goods received", "lane": "L-PU" }
+  ],
+  "flows": [
+    { "from": "E-01", "to": "T-01" },
+    { "from": "T-01", "to": "G-01" },
+    { "from": "G-01", "to": "T-03", "name": "Yes" },
+    { "from": "G-01", "to": "T-02", "name": "No" },
+    { "from": "T-02", "to": "E-09" },
+    { "from": "T-03", "to": "G-02" },
+    { "from": "G-02", "to": "T-04", "name": "Yes" },
+    { "from": "G-02", "to": "T-09", "name": "No" },
+    { "from": "T-09", "to": "T-10" },
+    { "from": "T-10", "to": "E-11" },
+    { "from": "T-04", "to": "T-05" },
+    { "from": "T-05", "to": "T-06" },
+    { "from": "T-06", "to": "T-07" },
+    { "from": "T-07", "to": "T-08" },
+    { "from": "T-08", "to": "E-10" }
+  ],
+  "messageFlows": [
+    { "from": "P-Supplier", "to": "E-01", "name": "Goods + delivery note" },
+    { "from": "T-02", "to": "P-Supplier", "name": "Refusal" },
+    { "from": "T-10", "to": "P-Supplier", "name": "Rejection note + goods" }
+  ]
+}

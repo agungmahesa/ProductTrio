@@ -1,7 +1,7 @@
 # product-trio - Quick start
 
-Free and open source (MIT). Seven skills that give your AI agent three product roles, chained
-into one traceable discovery flow:
+Free and open source (MIT). Eight skills that give your AI agent three product roles, chained
+into one traceable discovery flow, plus SOP writing:
 
 | Skill | Role | Output |
 |---|---|---|
@@ -12,6 +12,7 @@ into one traceable discovery flow:
 | use-case | Product Manager | Fully-dressed use cases with extensions |
 | user-story | Product Manager | INVEST stories with Gherkin acceptance criteria |
 | lofi-wireframe | UX Designer | Clickable grayscale prototype with storyboard view |
+| sop-builder | Business Analyst | SOPs with key-person risk register, BPMN flowchart and forms |
 
 Plus `/discovery <idea>` (Claude Code) to run the whole chain and write a traceability matrix.
 
@@ -40,6 +41,7 @@ from a CDN, so open them over http (`python3 -m http.server`).
 - *"Run discovery for: café partners reorder our coffee beans over WhatsApp"*
 - *"Model our refund process in BPMN with the customer as a separate pool"*
 - *"Write user stories for UC-02, then turn them into lo-fi wireframes"*
+- *"My warehouse lead is resigning. Write the SOP for receiving goods"*
 
 Outputs go to `docs/product/<feature-slug>/`. Full example and screenshots:
 https://github.com/agungmahesa/ProductTrio

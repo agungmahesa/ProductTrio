@@ -5,7 +5,7 @@
 <p align="center">
   <img alt="Claude Code plugin" src="https://img.shields.io/badge/Claude%20Code-plugin-1d1d1f">
   <img alt="BPMN 2.0" src="https://img.shields.io/badge/BPMN-2.0%20XML-2f6f4f">
-  <img alt="7 skills" src="https://img.shields.io/badge/skills-7-555">
+  <img alt="8 skills" src="https://img.shields.io/badge/skills-8-555">
   <img alt="Python stdlib only" src="https://img.shields.io/badge/python-3.8%2B%20stdlib-555">
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue"></a>
 </p>
@@ -40,6 +40,7 @@ flowchart LR
 | Product Manager | `use-case` | Cockburn fully-dressed use cases with extensions and business rules |
 | Product Manager | `user-story` | Epics, INVEST stories, Gherkin acceptance criteria, story map, MoSCoW, points |
 | UX Designer | `lofi-wireframe` | Clickable grayscale prototype: flows, states, annotations, storyboard, mobile/desktop |
+| Business Analyst | `sop-builder` | SOPs a new hire can follow: key-person risk register, activity table, BPMN swimlane flowchart, checklists and logs |
 
 Plus **`/discovery <idea>`**, which runs the whole chain and writes a traceability matrix with a
 coverage check.
@@ -96,6 +97,19 @@ annotations, hotspots, mobile/desktop toggle and storyboard (`O`):
 Every screen declares the stories and BPMN nodes it serves (`data-stories`, `data-bpmn`); every
 use case extension gets its own state screen (error, empty, expired). File:
 [`07-wireframe.html`](examples/b2b-wa-order/07-wireframe.html) (download and open locally).
+
+### 📘 SOPs - Business Analyst
+
+When the know-how lives in one person's head, `sop-builder` turns it into a procedure a new hire
+can follow: it first ranks which SOPs to write by **key-person risk**, then writes each SOP as a
+controlled document (purpose, scope, roles, step table with PIC, SLA and controls, exceptions,
+records, KPIs, sign-off), with a BPMN swimlane flowchart and printable checklists and logs.
+
+<img src="docs/images/bpmn-sop-receiving.svg" alt="BPMN swimlane flowchart of an SOP for receiving raw materials: warehouse staff, quality control and purchasing lanes, with refusal and rejection paths" width="100%">
+
+Every row of the step table names its BPMN node, so the document and the diagram cannot drift
+apart. Example: [`SOP-WH-01 Receiving raw materials`](examples/sop-library/SOP-WH-01-receiving-raw-materials/sop.md) ·
+[SOP register](examples/sop-library/README.md)
 
 ### 📋 Product Manager artifacts
 
@@ -232,6 +246,7 @@ journeys, and 30+ `wf-*` lo-fi building blocks cover the common UI.
 | Example | Shows |
 |---|---|
 | [`examples/b2b-wa-order/`](examples/b2b-wa-order/) | Full `/discovery` run: vision -> wireframe + traceability |
+| [`examples/sop-library/`](examples/sop-library/) | SOP register with key-person risk scores, plus a full SOP (receiving raw materials) with BPMN flowchart and 3 forms |
 | [`examples/purchase-approval/`](examples/purchase-approval/) | Small BPMN with a rework loop |
 
 <img src="docs/images/bpmn-purchase-approval.svg" alt="BPMN diagram of a purchase approval with a rework loop" width="70%">

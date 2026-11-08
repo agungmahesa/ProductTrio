@@ -27,6 +27,7 @@ svg() { # bpmn-preview-html out.svg
 EX="$ROOT/examples/b2b-wa-order"
 svg "$EX/04-flow.html" bpmn-b2b-wa-order.svg
 svg "$ROOT/examples/purchase-approval/04-flow.html" bpmn-purchase-approval.svg
+svg "$ROOT/examples/sop-library/SOP-WH-01-receiving-raw-materials/flow.html" bpmn-sop-receiving.svg
 shot "file://$EX/07-wireframe.html?overview=1&flow=0&notes=0&clean=1" wireframe-buyer-flow.png 2560 640
 shot "file://$EX/07-wireframe.html?overview=1&flow=1&vp=desktop&notes=0&clean=1" wireframe-admin-flow.png 1700 880
 shot "file://$EX/07-wireframe.html?vp=mobile#S-05" wireframe-prototype.png 1440 900

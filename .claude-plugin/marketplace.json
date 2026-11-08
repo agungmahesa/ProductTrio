@@ -10,8 +10,8 @@
     {
       "name": "product-trio",
       "source": "./plugins/product-trio",
-      "description": "BPMN 2.0 process flows, product vision/strategy/metrics, use cases, user stories and clickable lo-fi wireframes, all linked by shared IDs.",
-      "version": "0.1.0",
+      "description": "BPMN 2.0 process flows, SOPs, product vision/strategy/metrics, use cases, user stories and clickable lo-fi wireframes, all linked by shared IDs.",
+      "version": "0.2.0",
       "license": "MIT"
     }
   ]

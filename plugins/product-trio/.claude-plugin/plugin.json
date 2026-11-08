@@ -1,7 +1,7 @@
 {
   "name": "product-trio",
-  "version": "0.1.0",
-  "description": "Business Analyst (BPMN 2.0), Product Manager (vision, strategy, metrics, use cases, user stories) and UX Designer (clickable lo-fi wireframes) skills, linked end to end by traceable IDs.",
+  "version": "0.2.0",
+  "description": "Business Analyst (BPMN 2.0, SOPs), Product Manager (vision, strategy, metrics, use cases, user stories) and UX Designer (clickable lo-fi wireframes) skills, linked end to end by traceable IDs.",
   "author": {
     "name": "Agung Mahesa Yudhistira"
   },
@@ -9,10 +9,12 @@
     "bpmn",
     "business-analysis",
     "product-management",
-    "user-story",
+    "sop",
+    "standard-operating-procedure",
     "use-case",
-    "wireframe",
-    "ux"
+    "user-story",
+    "ux",
+    "wireframe"
   ],
   "license": "MIT",
   "repository": "https://github.com/agungmahesa/ProductTrio"
